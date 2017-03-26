@@ -39,7 +39,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
     mainCamera.Position = Vector3 (0, 0, -50);
     mainCamera.Target = Vector3 (0, 0, 0);
 
-    Device renderDevice = Device (0, 0);
+    Device renderDevice = Device (640, 480);
 
     MainWindow win;
 
@@ -50,8 +50,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
     ShowWindow (win.Window (), nCmdShow);
     UpdateWindow (win.Window ());
 
-    renderDevice.Render (mainCamera, Meshes);
-    win.UpdateBuffer (renderDevice.GetBuffer ());
+    renderDevice.Clear(0.0, 0.0, 0.0, 1.0);
 
     // Run the message loop.
     MSG msg;                  // Next message from top of queue
@@ -83,10 +82,11 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
             TranslateMessage (&msg);
             DispatchMessage (&msg);
         } else {
+
             // Do we need to move?
             if (move_flag) {
-                // No move step implemented yet
-                move_flag = FALSE;
+                move_flag = false;
+                // Move
             }
             // Use the appropriate method to get time
             if (perf_flag) {
@@ -94,6 +94,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
             } else {
                 cur_time = timeGetTime ();
             }
+
             // Is it time to render the frame?
             if (cur_time > next_time) {
                 // Render scene
@@ -101,6 +102,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
                 // Update main window with rendered buffer
                 BackBuffer buffer = renderDevice.GetBuffer ();
                 win.UpdateBuffer (buffer);
+
                 // Set time for next frame
                 next_time += time_count;
                 // If more than a frame behind, drop the frames

@@ -1,22 +1,16 @@
 #pragma once
 
 class BackBuffer {
-    char *buffer;
-    int *memBuffer;
-
-    int pixelWidth, pixelHeight;
-
 public:
+    char *buffer;
+    
+    int width, height, scanLineSize;
+
     BackBuffer ();
 
     BackBuffer (int width, int height);
 
-    ~BackBuffer ();
+    void Release ();
 
     char &operator [] (int i);
-
-    int* getBuffer ();
-
-    int getBufferWidth ();
-    int getBufferHeight ();
 };

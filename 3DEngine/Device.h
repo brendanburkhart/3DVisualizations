@@ -22,6 +22,8 @@ public:
 
     Device (int pixelWidth, int pixelHeight);
 
+    ~Device ();
+
     // This method is called to clear the back buffer with a specific color
     void Clear (char r, char g, char b, char a);
 

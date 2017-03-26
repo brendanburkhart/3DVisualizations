@@ -70,16 +70,14 @@ void MainWindow::UpdateBuffer (BackBuffer buffer) {
 
     if (bitmap) {
         bitmap->Release ();
-        bitmap = NULL;
+        bitmap = nullptr;
     }
-
-    int* frontBuffer = buffer.getBuffer ();
 
     // Create bitmap
     HRESULT result = pRenderTarget->CreateBitmap (
-        D2D1::SizeU (buffer.getBufferWidth (), buffer.getBufferHeight ()),
-        frontBuffer,
-        (UINT32)buffer.getBufferWidth () * 4,
+        D2D1::SizeU (buffer.width, buffer.height),
+        buffer.buffer,
+        (UINT32)buffer.scanLineSize,
         D2D1::BitmapProperties (D2D1::PixelFormat (DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)),
         &bitmap);
 
@@ -127,6 +125,11 @@ void MainWindow::DiscardGraphicsResources () {
 
 void MainWindow::OnPaint () {
     HRESULT hr = CreateGraphicsResources ();
+
+    if (bitmap == nullptr) {
+        return;
+    }
+
     if (SUCCEEDED (hr)) {
         PAINTSTRUCT ps;
         BeginPaint (m_hwnd, &ps);
@@ -147,8 +150,8 @@ void MainWindow::OnPaint () {
             D2D1::RectF (
                 0,
                 0,
-                backBuffer.getBufferWidth (),
-                backBuffer.getBufferHeight ())
+                backBuffer.width,
+                backBuffer.height)
         );
 
         hr = pRenderTarget->EndDraw ();

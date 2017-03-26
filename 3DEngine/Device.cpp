@@ -7,10 +7,14 @@ Device::Device (int pixelWidth, int pixelHeight) : deviceWidth (pixelWidth), dev
     backBuffer = BackBuffer (pixelWidth, pixelHeight);
 }
 
+Device::~Device () {
+    backBuffer.Release ();
+}
+
 void Device::Clear (char r, char g, char b, char a) {
 
     // Buffer data is in 4 byte-per-pixel format, iterates from 0 to end of buffer
-    for (auto index = 0; index < (backBuffer.getBufferWidth() * backBuffer.getBufferHeight() * 4); index += 4) {
+    for (auto index = 0; index < (backBuffer.width * backBuffer.height * 4); index += 4) {
         // BGRA is the color system used by Windows.
         backBuffer [index] = b;
         backBuffer [index + 1] = g;
@@ -68,7 +72,7 @@ void Device::PutPixel (int x, int y, Color4 color) {
     // As we have a 1-D Array for our back buffer
     // we need to know the equivalent cell in 1-D based
     // on the 2D coordinates on screen
-    auto index = (x + y * backBuffer.getBufferWidth()) * 4;
+    auto index = (x + y * backBuffer.scanLineSize);
 
     backBuffer [index] = (char)(color.Blue * 255);
     backBuffer [index + 1] = (char)(color.Green * 255);
