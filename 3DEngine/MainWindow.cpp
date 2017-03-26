@@ -23,7 +23,7 @@ LRESULT CALLBACK MainWindow::WindowProc (HWND hwnd, UINT uMsg, WPARAM wParam, LP
     }
 }
 
-MainWindow::MainWindow () : m_hwnd (NULL), pFactory (NULL), pRenderTarget (NULL), pBrush (NULL), bitmap(NULL) {};
+MainWindow::MainWindow () : m_hwnd (NULL), pFactory (NULL), pRenderTarget (NULL), bitmap(NULL) {};
 
 MainWindow::~MainWindow () {
     if (bitmap) {
@@ -64,69 +64,37 @@ HWND MainWindow::Window () const { return m_hwnd; }
 
 PCWSTR MainWindow::ClassName () const { return L"3D Graphics Engine"; }
 
-void MainWindow::UpdateBuffer (BackBuffer buffer) {
-
-    backBuffer = buffer;
-
-    if (bitmap) {
-        bitmap->Release ();
-        bitmap = nullptr;
-    }
-
-    // Create bitmap
-    HRESULT result = pRenderTarget->CreateBitmap (
-        D2D1::SizeU (buffer.width, buffer.height),
-        buffer.buffer,
-        (UINT32)buffer.scanLineSize,
-        D2D1::BitmapProperties (D2D1::PixelFormat (DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)),
-        &bitmap);
-
-    // Update screen
-    OnPaint ();
-}
-
-void MainWindow::CalculateLayout () {
-    if (pRenderTarget != NULL) {
-        D2D1_SIZE_F size = pRenderTarget->GetSize ();
-        centerX = (int)size.width / 2;
-        centerY = (int)size.height / 2;
-    }
-}
-
 HRESULT MainWindow::CreateGraphicsResources () {
     HRESULT hr = S_OK;
+
     if (pRenderTarget == NULL) {
         RECT rc;
         GetClientRect (m_hwnd, &rc);
 
         D2D1_SIZE_U size = D2D1::SizeU (rc.right, rc.bottom);
-
+        
+        renderDevice = Device (size.width, size.height);
+        
         hr = pFactory->CreateHwndRenderTarget (
             D2D1::RenderTargetProperties (),
             D2D1::HwndRenderTargetProperties (m_hwnd, size),
             &pRenderTarget);
 
-        if (SUCCEEDED (hr)) {
-            const D2D1_COLOR_F color = D2D1::ColorF (D2D1::ColorF::Black);
-            hr = pRenderTarget->CreateSolidColorBrush (color, &pBrush);
-
-            if (SUCCEEDED (hr)) {
-                CalculateLayout ();
-            }
-        }
     }
     return hr;
 }
 
 void MainWindow::DiscardGraphicsResources () {
     SafeRelease (&pRenderTarget);
-    SafeRelease (&pBrush);
+    renderDevice.Release ();
 }
 
-void MainWindow::OnPaint () {
+void MainWindow::OnPaint (UINT message, WPARAM wParam, LPARAM lParam) {
     HRESULT hr = CreateGraphicsResources ();
 
     if (bitmap == nullptr) {
+        OutputDebugString (L"Oh noeesssss!!\n\n");
+        DefWindowProc (m_hwnd, message, wParam, lParam);
         return;
     }
 
@@ -150,8 +118,8 @@ void MainWindow::OnPaint () {
             D2D1::RectF (
                 0,
                 0,
-                backBuffer.width,
-                backBuffer.height)
+                (FLOAT) renderDevice.getWidth(),
+                (FLOAT) renderDevice.getHeight())
         );
 
         hr = pRenderTarget->EndDraw ();
@@ -170,12 +138,20 @@ void MainWindow::Resize () {
         D2D1_SIZE_U size = D2D1::SizeU (rc.right, rc.bottom);
 
         pRenderTarget->Resize (size);
-        CalculateLayout ();
+
+        renderDevice.Release ();
+        renderDevice = Device (size.width, size.height);
+        
         InvalidateRect (m_hwnd, NULL, FALSE);
     }
 }
 
 void MainWindow::Key (UINT message, WPARAM wParam, LPARAM lParam) {
+    switch (wParam) {
+    case VK_ESCAPE:
+        PostMessage (m_hwnd, WM_CLOSE, NULL, NULL);
+    }
+
     DefWindowProc (m_hwnd, message, wParam, lParam);
 }
 
@@ -191,7 +167,7 @@ LRESULT MainWindow::HandleMessage (UINT message, WPARAM wParam, LPARAM lParam) {
     }
     case WM_PAINT:
     {
-        OnPaint ();
+        OnPaint (message, wParam, lParam);
         return 0;
     }
     case WM_SIZE:
@@ -215,4 +191,36 @@ LRESULT MainWindow::HandleMessage (UINT message, WPARAM wParam, LPARAM lParam) {
         return DefWindowProc (m_hwnd, message, wParam, lParam);
     }
     return TRUE;
+}
+
+void MainWindow::Render () {
+    renderDevice.Clear (Color4(0, 0, 0.3, 1.0));
+
+    renderDevice.Render (renderCamera, meshes);
+
+    BackBuffer buffer = renderDevice.GetBuffer ();
+
+    if (bitmap) {
+        bitmap->Release ();
+        bitmap = nullptr;
+    }
+
+    // Create bitmap
+    HRESULT result = pRenderTarget->CreateBitmap (
+        D2D1::SizeU (buffer.width, buffer.height),
+        buffer.buffer,
+        (UINT32)buffer.scanLineSize,
+        D2D1::BitmapProperties (D2D1::PixelFormat (DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)),
+        &bitmap);
+
+    // Update screen
+    OnPaint (WM_PAINT, NULL, NULL);
+}
+
+void MainWindow::setCamera (Camera & camera) {
+    this->renderCamera = camera;
+}
+
+void MainWindow::setMeshList (std::vector<Mesh>& meshes) {
+    this->meshes = meshes;
 }

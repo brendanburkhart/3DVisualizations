@@ -7,19 +7,19 @@ Device::Device (int pixelWidth, int pixelHeight) : deviceWidth (pixelWidth), dev
     backBuffer = BackBuffer (pixelWidth, pixelHeight);
 }
 
-Device::~Device () {
+void Device::Release () {
     backBuffer.Release ();
 }
 
-void Device::Clear (char r, char g, char b, char a) {
+void Device::Clear (Color4 fillColor) {
 
     // Buffer data is in 4 byte-per-pixel format, iterates from 0 to end of buffer
     for (auto index = 0; index < (backBuffer.width * backBuffer.height * 4); index += 4) {
         // BGRA is the color system used by Windows.
-        backBuffer [index] = b;
-        backBuffer [index + 1] = g;
-        backBuffer [index + 2] = r;
-        backBuffer [index + 3] = a;
+        backBuffer [index] = (char)(fillColor.Blue * 255);
+        backBuffer [index + 1] = (char)(fillColor.Green * 255);
+        backBuffer [index + 2] = (char)(fillColor.Red * 255);
+        backBuffer [index + 3] = (char)(fillColor.Alpha * 255);
     }
 }
 
@@ -35,8 +35,11 @@ void Device::Render (Camera camera, std::vector<Mesh> meshes) {
 
     for (const auto &mesh : meshes) {
         // Make sure to apply rotation before translation 
-        Matrix worldMatrix = Matrix::RotationYawPitchRoll (mesh.Rotation.Y,
-            mesh.Rotation.X, mesh.Rotation.Z) * Matrix::Translation (mesh.Position);
+
+        Matrix rotationMatrix = Matrix::RotationYawPitchRoll (mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z);
+        Matrix translationMatrix = Matrix::Translation (mesh.Position);
+
+        Matrix worldMatrix = rotationMatrix * translationMatrix;
 
         Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
@@ -65,6 +68,9 @@ void Device::DrawPoint (Vector2 point) {
     if (point.X >= 0 && point.Y >= 0 && point.X < deviceWidth && point.Y < deviceHeight) {
         // Drawing a yellow point
         PutPixel ((int)point.X, (int)point.Y, Color4 (1.0f, 1.0f, 0.0f, 1.0f));
+        OutputDebugString (L"SdfgKJ\n");
+    } else {
+        OutputDebugString (L"SGHKJ\n");
     }
 }
 
@@ -78,4 +84,12 @@ void Device::PutPixel (int x, int y, Color4 color) {
     backBuffer [index + 1] = (char)(color.Green * 255);
     backBuffer [index + 2] = (char)(color.Red * 255);
     backBuffer [index + 3] = (char)(color.Alpha * 255);
+}
+
+int Device::getWidth () {
+    return deviceWidth;
+}
+
+int Device::getHeight () {
+    return deviceHeight;
 }

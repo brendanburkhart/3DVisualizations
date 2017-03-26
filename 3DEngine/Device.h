@@ -22,10 +22,10 @@ public:
 
     Device (int pixelWidth, int pixelHeight);
 
-    ~Device ();
-
+    void Release ();
+    
     // This method is called to clear the back buffer with a specific color
-    void Clear (char r, char g, char b, char a);
+    void Clear (Color4 fillColor);
 
     // Once everything is ready, we can flush the back buffer
     // into the front buffer. 
@@ -44,4 +44,7 @@ public:
     // The main method of the engine that re-compute each vertex projection
     // during each frame
     void Render (Camera camera, std::vector<Mesh> meshes);
+
+    int getWidth ();
+    int getHeight ();
 };

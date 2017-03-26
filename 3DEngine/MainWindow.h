@@ -18,16 +18,16 @@ class MainWindow {
 
     ID2D1Factory            *pFactory;
     ID2D1HwndRenderTarget   *pRenderTarget;
-    ID2D1SolidColorBrush    *pBrush;
-    int centerX, centerY;
+    
+    Device renderDevice;
+    Camera renderCamera;
+    std::vector<Mesh> meshes;
 
-    BackBuffer backBuffer;
     ID2D1Bitmap *bitmap;
     
-    void    CalculateLayout ();
     HRESULT CreateGraphicsResources ();
     void    DiscardGraphicsResources ();
-    void    OnPaint ();
+    void    OnPaint (UINT message, WPARAM wParam, LPARAM lParam);
     void    Resize ();
     void    Key (UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -54,7 +54,10 @@ public:
 
     PCWSTR ClassName () const;
 
-    void UpdateBuffer (BackBuffer buffer);
+    void Render ();
+
+    void setCamera (Camera& camera);
+    void setMeshList (std::vector<Mesh>& meshes);
 
 protected:
 

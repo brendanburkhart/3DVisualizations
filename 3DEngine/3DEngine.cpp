@@ -39,23 +39,22 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
     mainCamera.Position = Vector3 (0, 0, -50);
     mainCamera.Target = Vector3 (0, 0, 0);
 
-    Device renderDevice = Device (640, 480);
-
     MainWindow win;
 
     if (!win.Create (L"Learn to Program Windows", WS_OVERLAPPEDWINDOW)) {
         return 0;
     }
 
+    win.setCamera (mainCamera);
+    win.setMeshList (Meshes);
+
     ShowWindow (win.Window (), nCmdShow);
     UpdateWindow (win.Window ());
-
-    renderDevice.Clear(0.0, 0.0, 0.0, 1.0);
 
     // Run the message loop.
     MSG msg;                  // Next message from top of queue
     LONGLONG cur_time;        // Current system time
-    DWORD time_count = 40;    // ms per frame, used as default if performance counter is not available
+    UINT32 time_count = 40;    // ms per frame, used as default if performance counter is not available
     LONGLONG perf_cnt;        // Performance timer frequency
     BOOL perf_flag = FALSE;   // Flag whether performance counter available, if false use timeGetTime()
     LONGLONG next_time = 0;   // Time to render next frame
@@ -65,7 +64,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
     if (QueryPerformanceFrequency ((LARGE_INTEGER *)&perf_cnt)) {
         // Yes, set time_count and timer choice flag
         perf_flag = TRUE;
-        time_count = perf_cnt / 25;    // Calculate time per frame based on frequency (25 fps, 40 milliseconds per frame)
+        time_count = (UINT32)perf_cnt / 25;    // Calculate time per frame based on frequency (25 fps, 40 milliseconds per frame)
         QueryPerformanceCounter ((LARGE_INTEGER *)&next_time);
     } else {
         // No performance counter, read in using timeGetTime
@@ -73,7 +72,6 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
     }
     // Prime the message structure
     PeekMessage (&msg, NULL, 0, 0, PM_NOREMOVE);
-
     // Run till completed
     while (msg.message != WM_QUIT) {
         // Is there a message to process?
@@ -82,7 +80,6 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
             TranslateMessage (&msg);
             DispatchMessage (&msg);
         } else {
-
             // Do we need to move?
             if (move_flag) {
                 move_flag = false;
@@ -98,11 +95,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
             // Is it time to render the frame?
             if (cur_time > next_time) {
                 // Render scene
-                renderDevice.Render (mainCamera, Meshes);
-                // Update main window with rendered buffer
-                BackBuffer buffer = renderDevice.GetBuffer ();
-                win.UpdateBuffer (buffer);
-
+                win.Render ();
                 // Set time for next frame
                 next_time += time_count;
                 // If more than a frame behind, drop the frames
