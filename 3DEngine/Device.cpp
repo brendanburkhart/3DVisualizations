@@ -67,10 +67,7 @@ void Device::DrawPoint (Vector2 point) {
     // Clipping what's visible on screen
     if (point.X >= 0 && point.Y >= 0 && point.X < deviceWidth && point.Y < deviceHeight) {
         // Drawing a yellow point
-        PutPixel ((int)point.X, (int)point.Y, Color4 (1.0f, 1.0f, 0.0f, 1.0f));
-        OutputDebugString (L"SdfgKJ\n");
-    } else {
-        OutputDebugString (L"SGHKJ\n");
+        PutPixel ((int)point.X, (int)point.Y, Color4 (1.0f, 0.0f, 0.0f, 1.0f));
     }
 }
 
@@ -78,7 +75,7 @@ void Device::PutPixel (int x, int y, Color4 color) {
     // As we have a 1-D Array for our back buffer
     // we need to know the equivalent cell in 1-D based
     // on the 2D coordinates on screen
-    auto index = (x + y * backBuffer.scanLineSize);
+    auto index = ((x * 4) + y * (backBuffer.scanLineSize));
 
     backBuffer [index] = (char)(color.Blue * 255);
     backBuffer [index + 1] = (char)(color.Green * 255);
