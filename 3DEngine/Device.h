@@ -38,6 +38,9 @@ public:
     // in 2D coordinates using the transformation matrix
     Vector2 Project (Vector3 coord, Matrix transMat);
 
+    // Draws a line between point 0 and point 1 using Bresenham's Line algorithm
+    void DrawLine (Vector2 point0, Vector2 point1);
+
     // DrawPoint calls PutPixel but does the clipping operation before
     void DrawPoint (Vector2 point);
 

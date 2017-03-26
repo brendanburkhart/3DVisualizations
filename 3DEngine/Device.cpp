@@ -63,6 +63,28 @@ Vector2 Device::Project (Vector3 coord, Matrix transMat) {
     return (Vector2 (x, y));
 }
 
+void Device::DrawLine (Vector2 point0, Vector2 point1) {
+    int x0 = (int)point0.X;
+    int y0 = (int)point0.Y;
+    int x1 = (int)point1.X;
+    int y1 = (int)point1.Y;
+
+    auto dx = abs (x1 - x0);
+    auto dy = abs (y1 - y0);
+    auto sx = (x0 < x1) ? 1 : -1;
+    auto sy = (y0 < y1) ? 1 : -1;
+    auto err = dx - dy;
+
+    while (true) {
+        DrawPoint (Vector2 (x0, y0));
+
+        if ((x0 == x1) && (y0 == y1)) { break; };
+        auto e2 = 2 * err;
+        if (e2 > -dy) { err -= dy; x0 += sx; }
+        if (e2 < dx) { err += dx; y0 += sy; }
+    }
+}
+
 void Device::DrawPoint (Vector2 point) {
     // Clipping what's visible on screen
     if (point.X >= 0 && point.Y >= 0 && point.X < deviceWidth && point.Y < deviceHeight) {
