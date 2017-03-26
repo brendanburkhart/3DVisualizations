@@ -14,6 +14,10 @@ Vector3 Vector3::UnitY () {
     return Vector3 (0.0, 1.0, 0.0);
 }
 
+Vector3 Vector3::Origin () {
+    return Vector3 (0.0, 0.0, 0.0);
+}
+
 Vector3 Vector3::Subtract (Vector3 minuend, Vector3 subtrahend) {
     return Vector3 (minuend.X - subtrahend.X, minuend.Y - subtrahend.Y, minuend.Z - subtrahend.Z);
 }

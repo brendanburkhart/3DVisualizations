@@ -43,11 +43,21 @@ void Device::Render (Camera camera, std::vector<Mesh> meshes) {
 
         Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
-        for (const auto &vertex : mesh.Vertices) {
-            // First, we project the 3D coordinates into the 2D space
-            auto point = Project (vertex, transformMatrix);
-            // Then we can draw on screen
-            DrawPoint (point);
+        for (const auto &face : mesh.Faces) {
+            // Get each vertex for this face
+            auto vertexA = mesh.Vertices [face.A];
+            auto vertexB = mesh.Vertices [face.B];
+            auto vertexC = mesh.Vertices [face.C];
+
+            // Transform to get the pixel
+            auto pixelA = Project (vertexA, transformMatrix);
+            auto pixelB = Project (vertexB, transformMatrix);
+            auto pixelC = Project (vertexC, transformMatrix);
+
+            // Connect all pixels to draw wireframe face
+            DrawLine (pixelA, pixelB);
+            DrawLine (pixelB, pixelC);
+            DrawLine (pixelC, pixelA);
         }
     }
 }

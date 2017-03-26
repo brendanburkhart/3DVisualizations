@@ -13,6 +13,7 @@ public:
     Vector3 (double x, double y, double z);
 
     static Vector3 UnitY ();
+    static Vector3 Origin ();
 
     static Vector3 Subtract (Vector3 minuend, Vector3 subtrahend);
 
