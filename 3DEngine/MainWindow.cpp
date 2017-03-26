@@ -194,9 +194,9 @@ LRESULT MainWindow::HandleMessage (UINT message, WPARAM wParam, LPARAM lParam) {
 }
 
 void MainWindow::Render () {
-    renderDevice.Clear (Color4(0, 0, 0.3, 1.0));
+    renderDevice.Clear (Color4(0, 0, 0, 1.0));
 
-    renderDevice.Render (renderCamera, meshes);
+    renderDevice.Render (*renderCamera, *meshes);
 
     BackBuffer buffer = renderDevice.GetBuffer ();
 
@@ -217,10 +217,10 @@ void MainWindow::Render () {
     OnPaint (WM_PAINT, NULL, NULL);
 }
 
-void MainWindow::setCamera (Camera & camera) {
+void MainWindow::setCamera (Camera* camera) {
     this->renderCamera = camera;
 }
 
-void MainWindow::setMeshList (std::vector<Mesh>& meshes) {
+void MainWindow::setMeshList (std::vector<Mesh>* meshes) {
     this->meshes = meshes;
 }

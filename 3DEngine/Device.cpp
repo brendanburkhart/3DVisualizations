@@ -67,7 +67,7 @@ void Device::DrawPoint (Vector2 point) {
     // Clipping what's visible on screen
     if (point.X >= 0 && point.Y >= 0 && point.X < deviceWidth && point.Y < deviceHeight) {
         // Drawing a yellow point
-        PutPixel ((int)point.X, (int)point.Y, Color4 (1.0f, 0.0f, 0.0f, 1.0f));
+        PutPixel ((int)point.X, (int)point.Y, Color4 (0.0f, 1.0f, 1.0f, 1.0f));
     }
 }
 

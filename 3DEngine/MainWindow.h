@@ -20,8 +20,8 @@ class MainWindow {
     ID2D1HwndRenderTarget   *pRenderTarget;
     
     Device renderDevice;
-    Camera renderCamera;
-    std::vector<Mesh> meshes;
+    Camera *renderCamera;
+    std::vector<Mesh> *meshes;
 
     ID2D1Bitmap *bitmap;
     
@@ -56,8 +56,8 @@ public:
 
     void Render ();
 
-    void setCamera (Camera& camera);
-    void setMeshList (std::vector<Mesh>& meshes);
+    void setCamera (Camera* camera);
+    void setMeshList (std::vector<Mesh>* meshes);
 
 protected:
 

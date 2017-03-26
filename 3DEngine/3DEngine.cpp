@@ -21,14 +21,14 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
     Mesh mesh = Mesh ("Cube", 8);
 
     std::vector<Vector3> Vertices (8);
-    Vertices [0] = Vector3 (-1, 1, 1);
-    Vertices [1] = Vector3 (1, 1, 1);
-    Vertices [2] = Vector3 (-1, -1, 1);
-    Vertices [3] = Vector3 (-1, -1, -1);
-    Vertices [4] = Vector3 (-1, 1, -1);
-    Vertices [5] = Vector3 (1, 1, -1);
-    Vertices [6] = Vector3 (1, -1, 1);
-    Vertices [7] = Vector3 (1, -1, -1);
+    Vertices [0] = Vector3 (-3, 3, 3);
+    Vertices [1] = Vector3 (3, 3, 3);
+    Vertices [2] = Vector3 (-3, -3, 3);
+    Vertices [3] = Vector3 (-3, -3, -3);
+    Vertices [4] = Vector3 (-3, 3, -3);
+    Vertices [5] = Vector3 (3, 3, -3);
+    Vertices [6] = Vector3 (3, -3, 3);
+    Vertices [7] = Vector3 (3, -3, -3);
 
     mesh.Vertices = Vertices;
 
@@ -45,8 +45,8 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
         return 0;
     }
 
-    win.setCamera (mainCamera);
-    win.setMeshList (Meshes);
+    win.setCamera (&mainCamera);
+    win.setMeshList (&Meshes);
 
     ShowWindow (win.Window (), nCmdShow);
     UpdateWindow (win.Window ());
@@ -82,8 +82,9 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
         } else {
             // Do we need to move?
             if (move_flag) {
-                move_flag = false;
-                // Move
+                move_flag = FALSE;
+                Meshes[0].Rotation = Vector3 (Meshes[0].Rotation.X + 0.01f, Meshes [0].Rotation.Y + 0.01f, Meshes [0].Rotation.Z);
+                OutputDebugString (L"Why, hello there!\n");
             }
             // Use the appropriate method to get time
             if (perf_flag) {
