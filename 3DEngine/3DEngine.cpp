@@ -42,9 +42,9 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
     Faces [5] = Mesh::Face ( 1, 4, 5);
 
     Faces [6] = Mesh::Face ( 2, 3, 7);
-    Faces [7] = Mesh::Face ( 3, 6, 7);
-    Faces [8] = Mesh::Face ( 0, 2, 6);
-    Faces [9] = Mesh::Face ( 0, 4, 6);
+    Faces [7] = Mesh::Face ( 2, 6, 7);
+    Faces [8] = Mesh::Face ( 2, 4, 6);
+    Faces [9] = Mesh::Face ( 0, 4, 2);
     Faces [10] = Mesh::Face ( 4, 5, 7);
     Faces [11] = Mesh::Face ( 4, 6, 7);
 
@@ -57,7 +57,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
 
     Camera mainCamera = Camera ();
 
-    mainCamera.Position = Vector3 (0, 0, -50);
+    mainCamera.Position = Vector3 (0, 0, 100);
     mainCamera.Target = Vector3::Origin ();
 
     MainWindow win;
