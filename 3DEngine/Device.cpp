@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Device.h"
 
+#include <algorithm>
+
 Device::Device () : deviceWidth(0), deviceHeight(0),backBuffer (BackBuffer ()) {}
 
 Device::Device (int pixelWidth, int pixelHeight) : deviceWidth (pixelWidth), deviceHeight (pixelHeight) {
@@ -43,6 +45,8 @@ void Device::Render (Camera camera, std::vector<Mesh> meshes) {
 
         Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
+
+        auto faceIndex = 0;
         for (const auto &face : mesh.Faces) {
             // Get each vertex for this face
             auto vertexA = mesh.Vertices [face.A];
@@ -54,52 +58,107 @@ void Device::Render (Camera camera, std::vector<Mesh> meshes) {
             auto pixelB = Project (vertexB, transformMatrix);
             auto pixelC = Project (vertexC, transformMatrix);
 
-            // Connect all pixels to draw wireframe face
-            DrawLine (pixelA, pixelB);
-            DrawLine (pixelB, pixelC);
-            DrawLine (pixelC, pixelA);
+            // Rasterize face as a triangles
+            auto color = 0.25f + (faceIndex % mesh.Faces.size()) * 0.75f / mesh.Faces.size();
+            RasterizeTriangle (pixelA, pixelB, pixelC, Color4 (color, color, color, 1));
+            faceIndex++;
         }
     }
 }
 
-Vector2 Device::Project (Vector3 coord, Matrix transMat) {
-    // transforming the coordinates
-    Vector2 point = Vector3::TransformCoordinate (coord, transMat);
+Vector3 Device::Project (Vector3 coord, Matrix transMat) {
+    // Transforming the coordinates
+    Vector3 point = Vector3::TransformCoordinate (coord, transMat);
+
     // The transformed coordinates will be based on coordinate system
     // starting on the center of the screen. But drawing on screen normally starts
     // from top left. We then need to transform them again to have x:0, y:0 on top left.
+    // Includes Z pos for the Z-Buffer, un-transformed
     double x = point.X * deviceWidth + deviceWidth / 2.0f;
     double y = -point.Y * deviceHeight + deviceHeight / 2.0f;
-    return (Vector2 (x, y));
+    return (Vector3 (x, y, point.Z));
 }
 
-void Device::DrawLine (Vector2 point0, Vector2 point1) {
-    int x0 = (int)point0.X;
-    int y0 = (int)point0.Y;
-    int x1 = (int)point1.X;
-    int y1 = (int)point1.Y;
+void Device::RasterizeTriangle (Vector3 p1, Vector3 p2, Vector3 p3, Color4 color) {
+    // Sort points
+    if (p1.Y > p2.Y) {
+        auto temp = p2;
+        p2 = p1;
+        p1 = temp;
+    }
+    if (p2.Y > p3.Y) {
+        auto temp = p2;
+        p2 = p3;
+        p3 = temp;
+    }
+    if (p1.Y > p2.Y) {
+        auto temp = p2;
+        p2 = p1;
+        p1 = temp;
+    }
 
-    auto dx = abs (x1 - x0);
-    auto dy = abs (y1 - y0);
-    auto sx = (x0 < x1) ? 1 : -1;
-    auto sy = (y0 < y1) ? 1 : -1;
-    auto err = dx - dy;
+    // Calculate inverse slopes
+    float dP1P2, dP1P3;
 
-    while (true) {
-        DrawPoint (Vector2 (x0, y0));
+    if (p2.Y - p1.Y > 0)
+        dP1P2 = (p2.X - p1.X) / (p2.Y - p1.Y);
+    else
+        dP1P2 = 0;
 
-        if ((x0 == x1) && (y0 == y1)) { break; };
-        auto e2 = 2 * err;
-        if (e2 > -dy) { err -= dy; x0 += sx; }
-        if (e2 < dx) { err += dx; y0 += sy; }
+    if (p3.Y - p1.Y > 0)
+        dP1P3 = (p3.X - p1.X) / (p3.Y - p1.Y);
+    else
+        dP1P3 = 0;
+
+    // Two cases for triangle shape once points are sorted
+    if (dP1P2 > dP1P3) {
+        // Iterate over height of triangle
+        for (auto y = (int)p1.Y; y <= (int)p3.Y; y++) {
+            // Reverse once second point is reached
+            if (y < p2.Y) {
+                // Draw line across triangle's width
+                ProcessScanLine (y, p1, p3, p1, p2, color);
+            } else {
+                ProcessScanLine (y, p1, p3, p2, p3, color);
+            }
+        }
+    } else {
+        for (auto y = (int)p1.Y; y <= (int)p3.Y; y++) {
+            if (y < p2.Y) {
+                ProcessScanLine (y, p1, p2, p1, p3, color);
+            } else {
+                ProcessScanLine (y, p2, p3, p1, p3, color);
+            }
+        }
     }
 }
 
-void Device::DrawPoint (Vector2 point) {
+double Device::Clamp (double value, double min, double max) {
+    return std::max (min, std::min (value, max));
+}
+
+double Device::Interpolate (double min, double max, double gradient) {
+    return min + ((max - min) * gradient);
+}
+
+void Device::ProcessScanLine (int y, Vector3 pa, Vector3 pb, Vector3 pc, Vector3 pd, Color4 color) {
+    auto gradient1 = pa.Y != pb.Y ? (y - pa.Y) / (pb.Y - pa.Y) : 1;
+    auto gradient2 = pc.Y != pd.Y ? (y - pc.Y) / (pd.Y - pc.Y) : 1;
+
+    int sx = (int)Interpolate (pa.X, pb.X, gradient1);
+    int ex = (int)Interpolate (pc.X, pd.X, gradient2);
+
+    // drawing a line from left (sx) to right (ex) 
+    for (auto x = sx; x < ex; x++) {
+        DrawPoint (Vector2 (x, y), color);
+    }
+}
+
+void Device::DrawPoint (Vector2 point, Color4 color) {
     // Clipping what's visible on screen
     if (point.X >= 0 && point.Y >= 0 && point.X < deviceWidth && point.Y < deviceHeight) {
         // Drawing a yellow point
-        PutPixel ((int)point.X, (int)point.Y, Color4 (0.0f, 1.0f, 1.0f, 1.0f));
+        PutPixel ((int)point.X, (int)point.Y, color);
     }
 }
 
