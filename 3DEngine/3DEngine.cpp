@@ -12,52 +12,64 @@
 #include "Mesh.h"
 #include "Camera.h"
 #include "Device.h"
+#include "MeshLoader.h"
 
 int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow) {
 
+    // This next bit gets the path to the .exe and stores it into filePath
+
+    #define filePathLength 150
+
+    wchar_t fileName [filePathLength];
+
+    int bytes = GetModuleFileName (NULL, fileName, filePathLength);
+    if (bytes == 0)
+        return -1;
+    else if (bytes == 150)
+        return -5;
+
+    // Get the directory the program is executing in
+    std::wstring directory;
+    std::wstring fileNameString (fileName);
+
+    const size_t last_slash_idx = fileNameString.rfind ('\\');
+    if (std::string::npos != last_slash_idx) {
+        directory = fileNameString.substr (0, last_slash_idx);
+    }
+    
     std::vector<Mesh> Meshes;
 
-    // Create cube mesh, and add it to Meshes
-    Mesh cube = Mesh ("Cube", 8, 12);
+    //Mesh cube = Mesh ("Cube", 8, 12);
+    //std::vector<Vector3> Vertices (8);
+    //Vertices [0] = Vector3 (-3, 3, 3);
+    //Vertices [1] = Vector3 (3, 3, 3);
+    //Vertices [2] = Vector3 (-3, -3, 3);
+    //Vertices [3] = Vector3 (3, -3, 3);
+    //Vertices [4] = Vector3 (-3, 3, -3);
+    //Vertices [5] = Vector3 (3, 3, -3);
+    //Vertices [6] = Vector3 (-3, -3, -3);
+    //Vertices [7] = Vector3 (3, -3, -3);
+    //std::vector<Mesh::Face> Faces (12);
+    //Faces [0] = Mesh::Face ( 0, 1, 2);
+    //Faces [1] = Mesh::Face ( 1, 2, 3);
+    //Faces [2] = Mesh::Face ( 1, 3, 7);
+    //Faces [3] = Mesh::Face ( 1, 5, 7);
+    //Faces [4] = Mesh::Face ( 0, 1, 4);
+    //Faces [5] = Mesh::Face ( 1, 4, 5);
+    //Faces [6] = Mesh::Face ( 2, 3, 7);
+    //Faces [7] = Mesh::Face ( 2, 6, 7);
+    //Faces [8] = Mesh::Face ( 2, 4, 6);
+    //Faces [9] = Mesh::Face ( 0, 4, 2);
+    //Faces [10] = Mesh::Face ( 4, 5, 7);
+    //Faces [11] = Mesh::Face ( 4, 6, 7);
 
-    std::vector<Vector3> Vertices (8);
+    std::wstring resourceFile = directory + L"//monkey.json";
 
-    Vertices [0] = Vector3 (-3, 3, 3);
-    Vertices [1] = Vector3 (3, 3, 3);
-    Vertices [2] = Vector3 (-3, -3, 3);
-    Vertices [3] = Vector3 (3, -3, 3);
-
-    Vertices [4] = Vector3 (-3, 3, -3);
-    Vertices [5] = Vector3 (3, 3, -3);
-    Vertices [6] = Vector3 (-3, -3, -3);
-    Vertices [7] = Vector3 (3, -3, -3);
-
-    std::vector<Mesh::Face> Faces (12);
-
-    Faces [0] = Mesh::Face ( 0, 1, 2);
-    Faces [1] = Mesh::Face ( 1, 2, 3);
-    Faces [2] = Mesh::Face ( 1, 3, 7);
-    Faces [3] = Mesh::Face ( 1, 5, 7);
-    Faces [4] = Mesh::Face ( 0, 1, 4);
-    Faces [5] = Mesh::Face ( 1, 4, 5);
-
-    Faces [6] = Mesh::Face ( 2, 3, 7);
-    Faces [7] = Mesh::Face ( 2, 6, 7);
-    Faces [8] = Mesh::Face ( 2, 4, 6);
-    Faces [9] = Mesh::Face ( 0, 4, 2);
-    Faces [10] = Mesh::Face ( 4, 5, 7);
-    Faces [11] = Mesh::Face ( 4, 6, 7);
-
-    cube.Faces = Faces;
-    cube.Vertices = Vertices;
-
-    Meshes.push_back (cube);
-
-    // Specify each face
+    MeshLoader::LoadMesh (Meshes, resourceFile);
 
     Camera mainCamera = Camera ();
 
-    mainCamera.Position = Vector3 (0, 0, 100);
+    mainCamera.Position = Vector3 (0, 0, 10);
     mainCamera.Target = Vector3::Origin ();
 
     MainWindow win;
@@ -104,7 +116,9 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
             // Do we need to move?
             if (move_flag) {
                 move_flag = FALSE;
-                Meshes[0].Rotation = Vector3 (Meshes[0].Rotation.X + 0.01f, Meshes [0].Rotation.Y + 0.01f, Meshes [0].Rotation.Z);
+                for (auto &mesh : Meshes) {
+                    mesh.Rotation = Vector3 (mesh.Rotation.X + 0.01f, mesh.Rotation.Y + 0.01f, mesh.Rotation.Z);
+                }
             }
             // Use the appropriate method to get time
             if (perf_flag) {

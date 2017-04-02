@@ -49,6 +49,7 @@ BOOL MainWindow::Create (
     wc.lpfnWndProc = MainWindow::WindowProc;
     wc.hInstance = GetModuleHandle (NULL);
     wc.lpszClassName = ClassName ();
+    wc.hCursor = LoadCursor (NULL, IDC_ARROW);
 
     RegisterClass (&wc);
 

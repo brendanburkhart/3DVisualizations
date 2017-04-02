@@ -13,11 +13,11 @@ public:
         Face (int a, int b, int c);
     };
 
-    std::string Name;
+    std::wstring Name;
     std::vector<Vector3> Vertices;
     std::vector<Mesh::Face> Faces;
     Vector3 Position;
     Vector3 Rotation;
 
-    Mesh (std::string name, int verticesCount, int facesCount);
+    Mesh (std::wstring name, int verticesCount, int facesCount);
 };
