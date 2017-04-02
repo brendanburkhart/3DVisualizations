@@ -63,7 +63,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
     //Faces [10] = Mesh::Face ( 4, 5, 7);
     //Faces [11] = Mesh::Face ( 4, 6, 7);
 
-    std::wstring resourceFile = directory + L"//monkey.json";
+    std::wstring resourceFile = directory + L"\\monkey.json";
 
     MeshLoader::LoadMesh (Meshes, resourceFile);
 
@@ -87,7 +87,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
     // Run the message loop.
     MSG msg;                  // Next message from top of queue
     LONGLONG cur_time;        // Current system time
-    UINT32 time_count = 40;    // ms per frame, used as default if performance counter is not available
+    UINT32 time_count = 100;    // ms per frame, used as default if performance counter is not available
     LONGLONG perf_cnt;        // Performance timer frequency
     BOOL perf_flag = FALSE;   // Flag whether performance counter available, if false use timeGetTime()
     LONGLONG next_time = 0;   // Time to render next frame
@@ -97,7 +97,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
     if (QueryPerformanceFrequency ((LARGE_INTEGER *)&perf_cnt)) {
         // Yes, set time_count and timer choice flag
         perf_flag = TRUE;
-        time_count = (UINT32)perf_cnt / 25;    // Calculate time per frame based on frequency (25 fps, 40 milliseconds per frame)
+        time_count = (UINT32)perf_cnt / 10;    // Calculate time per frame based on frequency (25 fps, 40 milliseconds per frame)
         QueryPerformanceCounter ((LARGE_INTEGER *)&next_time);
     } else {
         // No performance counter, read in using timeGetTime
@@ -117,7 +117,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
             if (move_flag) {
                 move_flag = FALSE;
                 for (auto &mesh : Meshes) {
-                    mesh.Rotation = Vector3 (mesh.Rotation.X + 0.01f, mesh.Rotation.Y + 0.01f, mesh.Rotation.Z);
+                    mesh.Rotation = Vector3 (mesh.Rotation.X + 0.05f, mesh.Rotation.Y + 0.05f, mesh.Rotation.Z);
                 }
             }
             // Use the appropriate method to get time
@@ -134,8 +134,10 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
                 // Set time for next frame
                 next_time += time_count;
                 // If more than a frame behind, drop the frames
-                if (next_time < cur_time)
+                if (next_time < cur_time) {
                     next_time = cur_time + time_count;
+                    OutputDebugString (L"Dropped a frame :(\n");
+                }
                 // Flag that we need to move objects again
                 move_flag = TRUE;
             }

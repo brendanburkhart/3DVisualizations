@@ -14,7 +14,9 @@ private:
     // Implementation of byte [] as a back buffer for rendering
     BackBuffer backBuffer;
     
-    int deviceWidth, deviceHeight;
+    double *depthBuffer;
+
+    int deviceWidth, deviceHeight, depthBufferSize;
 
     // Project takes coordinates and transforms them
     // using the transformation matrix
@@ -32,7 +34,7 @@ private:
     double Interpolate (double min, double max, double gradient);
 
     // DrawPoint calls PutPixel but does the clipping operation before
-    void DrawPoint (Vector2 point, Color4 color);
+    void DrawPoint (Vector3 point, Color4 color);
 
     // Called to put a pixel on screen at a specific X,Y coordinates
     void PutPixel (int x, int y, Color4 color);

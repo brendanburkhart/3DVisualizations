@@ -2,26 +2,34 @@
 #include "Device.h"
 
 #include <algorithm>
+#include <limits>
 
-Device::Device () : deviceWidth(0), deviceHeight(0),backBuffer (BackBuffer ()) {}
+Device::Device () : deviceWidth(0), deviceHeight(0), depthBufferSize(0), backBuffer (BackBuffer ()), depthBuffer (NULL) {}
 
-Device::Device (int pixelWidth, int pixelHeight) : deviceWidth (pixelWidth), deviceHeight (pixelHeight) {
+Device::Device (int pixelWidth, int pixelHeight) : deviceWidth (pixelWidth), deviceHeight (pixelHeight), depthBufferSize (pixelWidth * pixelHeight){
     backBuffer = BackBuffer (pixelWidth, pixelHeight);
+    depthBuffer = new double [depthBufferSize];
 }
 
 void Device::Release () {
     backBuffer.Release ();
+    delete [] depthBuffer;
 }
 
 void Device::Clear (Color4 fillColor) {
 
     // Buffer data is in 4 byte-per-pixel format, iterates from 0 to end of buffer
-    for (auto index = 0; index < (backBuffer.width * backBuffer.height * 4); index += 4) {
+    for (auto index = 0; index < (backBuffer.scanLineSize * backBuffer.height); index += 4) {
         // BGRA is the color system used by Windows.
         backBuffer [index] = (char)(fillColor.Blue * 255);
         backBuffer [index + 1] = (char)(fillColor.Green * 255);
         backBuffer [index + 2] = (char)(fillColor.Red * 255);
         backBuffer [index + 3] = (char)(fillColor.Alpha * 255);
+    }
+
+    // Clearing Depth Buffer
+    for (auto index = 0; index < depthBufferSize; index++) {
+        depthBuffer [index] = std::numeric_limits<double>::max ();
     }
 }
 
@@ -98,7 +106,7 @@ void Device::RasterizeTriangle (Vector3 p1, Vector3 p2, Vector3 p3, Color4 color
     }
 
     // Calculate inverse slopes
-    float dP1P2, dP1P3;
+    double dP1P2, dP1P3;
 
     if (p2.Y - p1.Y > 0)
         dP1P2 = (p2.X - p1.X) / (p2.Y - p1.Y);
@@ -148,13 +156,27 @@ void Device::ProcessScanLine (int y, Vector3 pa, Vector3 pb, Vector3 pc, Vector3
     int sx = (int)Interpolate (pa.X, pb.X, gradient1);
     int ex = (int)Interpolate (pc.X, pd.X, gradient2);
 
-    // drawing a line from left (sx) to right (ex) 
+    double z1 = Interpolate (pa.Z, pb.Z, gradient1);
+    double z2 = Interpolate (pc.Z, pd.Z, gradient2);
+
+    // drawing a line from left (sx) to right (ex)
     for (auto x = sx; x < ex; x++) {
-        DrawPoint (Vector2 (x, y), color);
+        double gradient = (x - sx) / (double)(ex - sx);
+
+        auto z = Interpolate (z1, z2, gradient);
+        DrawPoint (Vector3 (x, y, z), color);
     }
 }
 
-void Device::DrawPoint (Vector2 point, Color4 color) {
+void Device::DrawPoint (Vector3 point, Color4 color) {
+    auto index = (int)point.X + ((int)point.Y * deviceWidth);
+    
+    if (point.Z > depthBuffer[index]) {
+        return; // Discard
+    }
+
+    depthBuffer [index] = point.Z;
+
     // Clipping what's visible on screen
     if (point.X >= 0 && point.Y >= 0 && point.X < deviceWidth && point.Y < deviceHeight) {
         // Drawing a yellow point
