@@ -6,7 +6,7 @@
 #include "Matrix.h"
 
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 Matrix Matrix::Multiply (Matrix left, Matrix right) {
     Matrix returnMatrix = Matrix (0);

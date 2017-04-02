@@ -1,9 +1,10 @@
 #pragma once
 
-#include "stdafx.h"
 #include <d2d1.h>
+#include <vector>
 
 #include "Device.h"
+#include "Camera.h"
 #include "BackBuffer.h"
 
 template <class T>

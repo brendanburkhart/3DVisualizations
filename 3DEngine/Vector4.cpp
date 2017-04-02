@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Vector4.h"
-#include <math.h>
+#include <cmath>
 
 Vector4 Vector4::Subtract (Vector4 minuend, Vector4 subtrahend) {
     return Vector4 (minuend.X - subtrahend.X, minuend.Y - subtrahend.Y, minuend.Z - subtrahend.Z, minuend.W);

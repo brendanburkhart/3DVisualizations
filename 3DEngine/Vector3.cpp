@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "Vector3.h"
 
