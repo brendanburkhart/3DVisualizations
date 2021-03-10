@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Vecor2.h"
 #include "Vector3.h"
 #include "BackBuffer.h"
 #include "Camera.h"
