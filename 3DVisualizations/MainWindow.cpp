@@ -63,7 +63,7 @@ BOOL MainWindow::Create (
 
 HWND MainWindow::Window () const { return m_hwnd; }
 
-PCWSTR MainWindow::ClassName () const { return L"3D Graphics Engine"; }
+PCWSTR MainWindow::ClassName () const { return L"3DVisualizations"; }
 
 HRESULT MainWindow::CreateGraphicsResources () {
     HRESULT hr = S_OK;
@@ -94,7 +94,6 @@ void MainWindow::OnPaint (UINT message, WPARAM wParam, LPARAM lParam) {
     HRESULT hr = CreateGraphicsResources ();
 
     if (bitmap == nullptr) {
-        OutputDebugString (L"Oh noeesssss!!\n\n");
         DefWindowProc (m_hwnd, message, wParam, lParam);
         return;
     }

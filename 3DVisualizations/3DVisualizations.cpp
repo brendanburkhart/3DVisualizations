@@ -8,19 +8,15 @@
 
 #include <vector>
 
-#include "3DEngine.h"
 #include "MainWindow.h"
 #include "Mesh.h"
 #include "Camera.h"
 #include "Device.h"
-#include "MeshLoader.h"
+
+#pragma comment(lib, "winmm.lib")
 
 int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow) {
-
-    // This next bit gets the path to the .exe and stores it into filePath
-
-    #define filePathLength 150
-
+    constexpr auto filePathLength = 150;
     wchar_t fileName[filePathLength];
 
     int bytes = GetModuleFileName (NULL, fileName, filePathLength);
@@ -66,10 +62,6 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
 
     Meshes.push_back(cube);
 
-    //std::wstring resourceFile = directory + L"\\monkey.json";
-
-    //MeshLoader::LoadMesh (Meshes, resourceFile);
-
     Camera mainCamera = Camera ();
 
     mainCamera.Position = Vector3 (0, 0, 25);
@@ -77,7 +69,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
 
     MainWindow win;
 
-    if (!win.Create (L"Learn to Program Windows", WS_OVERLAPPEDWINDOW)) {
+    if (!win.Create (L"3DVisualizations", WS_OVERLAPPEDWINDOW)) {
         return 0;
     }
 
@@ -139,7 +131,7 @@ int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSho
                 // If more than a frame behind, drop the frames
                 if (next_time < cur_time) {
                     next_time = cur_time + time_count;
-                    OutputDebugString (L"Dropped a frame :(\n");
+                    OutputDebugString (L"Dropping frames...\n");
                 }
                 // Flag that we need to move objects again
                 move_flag = TRUE;

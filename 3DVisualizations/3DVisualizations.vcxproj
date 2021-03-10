@@ -140,17 +140,13 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="3DEngine.h" />
     <ClInclude Include="BackBuffer.h" />
     <ClInclude Include="Color4.h" />
     <ClInclude Include="Device.h" />
-    <ClInclude Include="json-forwards.h" />
-    <ClInclude Include="json.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Vecor2.h" />
@@ -158,14 +154,12 @@
     <ClInclude Include="Vector4.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="3DEngine.cpp" />
+    <ClCompile Include="3DVisualizations.cpp" />
     <ClCompile Include="BackBuffer.cpp" />
     <ClCompile Include="Device.cpp" />
-    <ClCompile Include="jsoncpp.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
