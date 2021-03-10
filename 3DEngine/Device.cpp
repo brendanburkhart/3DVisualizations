@@ -53,13 +53,12 @@ void Device::Render (Camera camera, std::vector<Mesh> meshes) {
 
         Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
-
         auto faceIndex = 0;
         for (const auto &face : mesh.Faces) {
             // Get each vertex for this face
-            auto vertexA = mesh.Vertices [face.A];
-            auto vertexB = mesh.Vertices [face.B];
-            auto vertexC = mesh.Vertices [face.C];
+            const auto& vertexA = mesh.Vertices [face.A];
+            const auto& vertexB = mesh.Vertices [face.B];
+            const auto& vertexC = mesh.Vertices [face.C];
 
             // Transform to get the pixel
             auto pixelA = Project (vertexA, transformMatrix);
@@ -169,6 +168,11 @@ void Device::ProcessScanLine (int y, Vector3 pa, Vector3 pb, Vector3 pc, Vector3
 }
 
 void Device::DrawPoint (Vector3 point, Color4 color) {
+    // Clip to device size
+    if (point.X < 0 || point.Y < 0 || point.X >= deviceWidth || point.Y >= deviceHeight) {
+        return;
+    }
+
     auto index = (int)point.X + ((int)point.Y * deviceWidth);
     
     if (point.Z > depthBuffer[index]) {
@@ -177,11 +181,7 @@ void Device::DrawPoint (Vector3 point, Color4 color) {
 
     depthBuffer [index] = point.Z;
 
-    // Clipping what's visible on screen
-    if (point.X >= 0 && point.Y >= 0 && point.X < deviceWidth && point.Y < deviceHeight) {
-        // Drawing a yellow point
-        PutPixel ((int)point.X, (int)point.Y, color);
-    }
+    PutPixel ((int)point.X, (int)point.Y, color);
 }
 
 void Device::PutPixel (int x, int y, Color4 color) {

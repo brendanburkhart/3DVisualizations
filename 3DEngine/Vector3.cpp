@@ -39,7 +39,6 @@ Vector3 Vector3::Negate (Vector3 vector) {
 }
 
 Vector3 Vector3::Normalize (Vector3 vector) {
-
     double length = Length (vector);
 
     if (!(length < 1e-6)) {
@@ -68,10 +67,10 @@ Vector3 Vector3::Cross (Vector3 left, Vector3 right) {
 
 Vector3 Vector3::TransformCoordinate (Vector3 coordinate, Matrix transform) {
     Vector4 vector = Vector4 (
-        (coordinate.X * transform.M11) + (coordinate.Y * transform.M21) + (coordinate.Z * transform.M31) + transform.M41,
-        (coordinate.X * transform.M12) + (coordinate.Y * transform.M22) + (coordinate.Z * transform.M32) + transform.M42,
-        (coordinate.X * transform.M13) + (coordinate.Y * transform.M23) + (coordinate.Z * transform.M33) + transform.M43,
-        1.0 / ((coordinate.X * transform.M14) + (coordinate.Y * transform.M24) + (coordinate.Z * transform.M34) + transform.M44)
+        (coordinate.X * transform.data[0]) + (coordinate.Y * transform.data[4]) + (coordinate.Z * transform.data[8]) + transform.data[12],
+        (coordinate.X * transform.data[1]) + (coordinate.Y * transform.data[5]) + (coordinate.Z * transform.data[9]) + transform.data[13],
+        (coordinate.X * transform.data[2]) + (coordinate.Y * transform.data[6]) + (coordinate.Z * transform.data[10]) + transform.data[14],
+        1.0 / ((coordinate.X * transform.data[3]) + (coordinate.Y * transform.data[7]) + (coordinate.Z * transform.data[11]) + transform.data[15])
     );
     return Vector3 (vector.X * vector.W, vector.Y * vector.W, vector.Z * vector.W);
 }
