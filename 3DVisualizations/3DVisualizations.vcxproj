@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{0625AFDD-C171-4908-8E55-F22DECC89A86}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>My3DEngine</RootNamespace>
+    <RootNamespace>3DVisualizations</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -178,10 +178,10 @@
     <ClCompile Include="Vector4.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="3DEngine.rc" />
+    <ResourceCompile Include="3DVisualizations.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="3DEngine.ico" />
+    <Image Include="3DVisualizations.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

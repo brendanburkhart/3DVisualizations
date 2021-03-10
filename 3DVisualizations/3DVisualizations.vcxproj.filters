@@ -109,7 +109,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="3DEngine.rc">
+    <ResourceCompile Include="3DVisualization.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -117,7 +117,7 @@
     <Image Include="small.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="3DEngine.ico">
+    <Image Include="3DVisualizations.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
