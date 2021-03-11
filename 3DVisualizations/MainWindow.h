@@ -21,6 +21,7 @@ private:
     ID2D1Bitmap* bitmap;
 
     Device renderDevice;
+    int droppedFrames;
     Visualization visualization;
 
     HRESULT EnsureGraphicsResources();

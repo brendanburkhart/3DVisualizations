@@ -219,6 +219,7 @@ void MainWindow::Begin(int fps) {
 
     last_time = cur_time;
     next_time = cur_time;
+    droppedFrames = 0;
 
     // Initialize the message structure
     PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
@@ -257,7 +258,12 @@ void MainWindow::Begin(int fps) {
             // If more than a frame behind, drop the frames
             if (next_time < cur_time) {
                 next_time = cur_time + frame_duration;
-                OutputDebugString(L"Dropping frames...\n");
+                droppedFrames++;
+            }
+
+            if (droppedFrames > 3) {
+                OutputDebugString(L"Dropped four frames\n");
+                droppedFrames = 0;
             }
         }
     }

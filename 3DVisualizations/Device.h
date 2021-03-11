@@ -30,6 +30,9 @@ private:
     // Interpolates gradient between min and max
     double Interpolate(double min, double max, double gradient);
 
+    // Draws a line between point A and point B using Bresenham's algorithm
+    void DrawLine(Vector3 pointA, Vector3 pointB, Color4 color);
+
     // DrawPoint calls PutPixel but does the clipping operation before
     void DrawPoint(Vector3 point, Color4 color);
 
@@ -47,9 +50,8 @@ public:
     // into the front buffer. 
     BackBuffer GetBuffer() const;
 
-    // The main method of the engine that re-compute each vertex projection
-    // during each frame
     void Render(const Camera& camera, const std::vector<Mesh>& meshes);
+    void Wireframe(const Camera& camera, const std::vector<Mesh>& meshes);
 
     int getWidth();
     int getHeight();

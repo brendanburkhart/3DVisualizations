@@ -70,6 +70,39 @@ void Device::Render(const Camera& camera, const std::vector<Mesh>& meshes) {
     }
 }
 
+void Device::Wireframe(const Camera& camera, const std::vector<Mesh>& meshes) {
+    Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3::UnitY());
+    Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
+        (double)deviceWidth / deviceHeight,
+        0.01f, 1.0f);
+
+    for (const auto& mesh : meshes) {
+        Matrix rotationMatrix = Matrix::RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z);
+        Matrix translationMatrix = Matrix::Translation(mesh.Position);
+
+        Matrix worldMatrix = rotationMatrix * translationMatrix;
+        Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
+
+        auto color = Color4(1.0, 1.0, 1.0, 1.0);
+
+        for (const auto& face : mesh.Faces) {
+            // Get each vertex for this face
+            const auto& vertexA = mesh.Vertices[face.A];
+            const auto& vertexB = mesh.Vertices[face.B];
+            const auto& vertexC = mesh.Vertices[face.C];
+
+            // Transform to get the pixel
+            auto pixelA = Project(vertexA, transformMatrix);
+            auto pixelB = Project(vertexB, transformMatrix);
+            auto pixelC = Project(vertexC, transformMatrix);
+
+            DrawLine(pixelA, pixelB, color);
+            DrawLine(pixelB, pixelC, color);
+            DrawLine(pixelA, pixelC, color);
+        }
+    }
+}
+
 Vector3 Device::Project(Vector3 coord, Matrix transMat) {
     // Transforming the coordinates
     Vector3 point = Vector3::TransformCoordinate(coord, transMat);
@@ -164,6 +197,28 @@ void Device::ProcessScanLine(int y, Vector3 pa, Vector3 pb, Vector3 pc, Vector3 
 
         auto z = Interpolate(z1, z2, gradient);
         DrawPoint(Vector3(x, y, z), color);
+    }
+}
+
+void Device::DrawLine(Vector3 pointA, Vector3 pointB, Color4 color) {
+    int x0 = (int)pointA.X;
+    int y0 = (int)pointA.Y;
+    int x1 = (int)pointB.X;
+    int y1 = (int)pointB.Y;
+
+    auto dx = abs(x1 - x0);
+    auto dy = abs(y1 - y0);
+    auto sx = (x0 < x1) ? 1 : -1;
+    auto sy = (y0 < y1) ? 1 : -1;
+    auto err = dx - dy;
+
+    while (true) {
+        DrawPoint(Vector3(x0, y0, 0), color);
+
+        if ((x0 == x1) && (y0 == y1)) { break; };
+        auto e2 = 2 * err;
+        if (e2 > -dy) { err -= dy; x0 += sx; }
+        if (e2 < dx) { err += dx; y0 += sy; }
     }
 }
 

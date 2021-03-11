@@ -19,5 +19,5 @@ void Visualization::Update(LONGLONG elapsed_time) {
 
 void Visualization::Render(Device& renderDevice) {
     renderDevice.Clear(Color4(0.0, 0, 0, 1.0));
-    renderDevice.Render(renderCamera, meshes);
+    renderDevice.Wireframe(renderCamera, meshes);
 }
