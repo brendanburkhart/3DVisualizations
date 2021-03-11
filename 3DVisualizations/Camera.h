@@ -4,5 +4,5 @@
 
 class Camera {
 public:
-    Vector3 Position, Target;
+    Vector3 Position, Target, Light;
 };

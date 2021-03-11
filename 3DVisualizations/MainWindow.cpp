@@ -215,6 +215,7 @@ void MainWindow::Begin(int fps) {
     }
     else {
         cur_time = timeGetTime();
+        perf_cnt = 1000;
     }
 
     last_time = cur_time;
@@ -248,7 +249,8 @@ void MainWindow::Begin(int fps) {
                 continue;
             }
 
-            visualization.Update(cur_time - last_time);
+            double elapsed_seconds = (cur_time - last_time) / static_cast<double>(perf_cnt);
+            visualization.Update(elapsed_seconds);
             visualization.Render(renderDevice);
             Display();
             

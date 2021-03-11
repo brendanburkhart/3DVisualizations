@@ -47,7 +47,6 @@ void Device::Render(const Camera& camera, const std::vector<Mesh>& meshes) {
         Matrix translationMatrix = Matrix::Translation(mesh.Position);
 
         Matrix worldMatrix = rotationMatrix * translationMatrix;
-
         Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
         auto faceIndex = 0;
@@ -62,9 +61,11 @@ void Device::Render(const Camera& camera, const std::vector<Mesh>& meshes) {
             auto pixelB = Project(vertexB, transformMatrix);
             auto pixelC = Project(vertexC, transformMatrix);
 
+            Vector3 normal = Vector3::Normalize(Vector3::TransformCoordinate(face.normal, worldMatrix));
+            Vector3 position = Vector3::TransformCoordinate(face.position, worldMatrix);
+            Vector3 light = Vector3::Normalize(Vector3::Subtract(camera.Light, position));
             // Rasterize face as a triangles
-            auto color = 0.25f + (faceIndex % mesh.Faces.size()) * 0.75f / mesh.Faces.size();
-            RasterizeTriangle(pixelA, pixelB, pixelC, Color4(color, color, color, 1));
+            RasterizeTriangle(pixelA, pixelB, pixelC, Color4::Shade(light, normal, mesh.color, 0.4));
             faceIndex++;
         }
     }
@@ -83,8 +84,6 @@ void Device::Wireframe(const Camera& camera, const std::vector<Mesh>& meshes) {
         Matrix worldMatrix = rotationMatrix * translationMatrix;
         Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
-        auto color = Color4(1.0, 1.0, 1.0, 1.0);
-
         for (const auto& face : mesh.Faces) {
             // Get each vertex for this face
             const auto& vertexA = mesh.Vertices[face.A];
@@ -96,9 +95,9 @@ void Device::Wireframe(const Camera& camera, const std::vector<Mesh>& meshes) {
             auto pixelB = Project(vertexB, transformMatrix);
             auto pixelC = Project(vertexC, transformMatrix);
 
-            DrawLine(pixelA, pixelB, color);
-            DrawLine(pixelB, pixelC, color);
-            DrawLine(pixelA, pixelC, color);
+            DrawLine(pixelA, pixelB, mesh.color);
+            DrawLine(pixelB, pixelC, mesh.color);
+            DrawLine(pixelA, pixelC, mesh.color);
         }
     }
 }

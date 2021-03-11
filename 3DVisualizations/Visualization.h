@@ -8,7 +8,7 @@ class Visualization
 public:
     Visualization();
 
-    void Update(LONGLONG elapsed_time);
+    void Update(double elapsed_seconds);
     void Render(Device& renderDevice);
 
 private:
