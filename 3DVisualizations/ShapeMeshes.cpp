@@ -28,3 +28,68 @@ Mesh ShapeMeshes::Cube() {
 
     return cube;
 }
+
+void AddPentagon(size_t index, int a, int b, int c, int d, int e, Mesh& mesh) {
+    mesh.Faces[3*index] = Mesh::Face(a, b, c);
+    mesh.Faces[3*index + 1] = Mesh::Face(a, c, d);
+    mesh.Faces[3*index + 2] = Mesh::Face(a, d, e);
+}
+
+Mesh ShapeMeshes::Dodecahedron() {
+    Mesh dodecahedron = Mesh(L"Dodecahedron", 20, 36);
+
+    double scale = 2.5;
+
+    int vertex = 0;
+    for (int i = -1; i < 2; i += 2)
+    {
+        for (int j = -1; j < 2; j += 2)
+        {
+            for (int k = -1; k < 2; k += 2)
+            {
+                dodecahedron.Vertices[vertex++] = Vector3(scale * i, scale * j, scale * k);
+            }
+        }
+    }
+
+    double phi = (1.0 + sqrt(5.0)) / 2.0;
+
+    for (int i = -1; i < 2; i += 2)
+    {
+        for (int j = -1; j < 2; j += 2)
+        {
+            dodecahedron.Vertices[vertex++] = Vector3(0.0, scale * i * phi, scale * j / phi);
+        }
+    }
+
+    for (int i = -1; i < 2; i += 2)
+    {
+        for (int j = -1; j < 2; j += 2)
+        {
+            dodecahedron.Vertices[vertex++] = Vector3(scale * i / phi, 0.0, scale * j * phi);
+        }
+    }
+
+    for (int i = -1; i < 2; i += 2)
+    {
+        for (int j = -1; j < 2; j += 2)
+        {
+            dodecahedron.Vertices[vertex++] = Vector3(scale * i * phi, scale * j / phi, 0.0);
+        }
+    }
+
+    AddPentagon(0, 0, 12, 14, 4, 8, dodecahedron);
+    AddPentagon(1, 6, 14, 12, 2, 10, dodecahedron);
+    AddPentagon(2, 12, 0, 16, 17, 2, dodecahedron);
+    AddPentagon(3, 14, 4, 18, 19, 6, dodecahedron);
+    AddPentagon(4, 0, 16, 1, 9, 8, dodecahedron);
+    AddPentagon(5, 18, 4, 8, 9, 5, dodecahedron);
+    AddPentagon(6, 17, 2, 10, 11, 3, dodecahedron);
+    AddPentagon(7, 19, 7, 11, 10, 6, dodecahedron);
+    AddPentagon(8, 13, 1, 16, 17, 3, dodecahedron);
+    AddPentagon(9, 15, 5, 18, 19, 7, dodecahedron);
+    AddPentagon(10, 9, 1, 13, 15, 5, dodecahedron);
+    AddPentagon(11, 11, 3, 13, 15, 7, dodecahedron);
+
+    return dodecahedron;
+}

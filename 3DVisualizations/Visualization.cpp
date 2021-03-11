@@ -4,10 +4,10 @@
 #include "ShapeMeshes.h"
 
 Visualization::Visualization() {
-    meshes.push_back(ShapeMeshes::Cube());
+    meshes.push_back(ShapeMeshes::Dodecahedron());
 
     renderCamera = Camera();
-    renderCamera.Position = Vector3(0, 0, 25);
+    renderCamera.Position = Vector3(-25, 0, 0);
     renderCamera.Target = Vector3::Origin();
 }
 
@@ -19,5 +19,5 @@ void Visualization::Update(LONGLONG elapsed_time) {
 
 void Visualization::Render(Device& renderDevice) {
     renderDevice.Clear(Color4(0.0, 0, 0, 1.0));
-    renderDevice.Wireframe(renderCamera, meshes);
+    renderDevice.Render(renderCamera, meshes);
 }

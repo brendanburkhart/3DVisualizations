@@ -6,4 +6,5 @@ class ShapeMeshes
 {
 public:
     static Mesh Cube();
+    static Mesh Dodecahedron();
 };
