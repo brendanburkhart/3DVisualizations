@@ -31,7 +31,8 @@ Matrix Matrix::LookAtLH(Vector3 eye, Vector3 target, Vector3 up) {
     xAxis = Vector3::Normalize(Vector3::Cross(up, zAxis));
     yAxis = Vector3::Cross(zAxis, xAxis);
 
-    Matrix returnMatrix = Matrix(xAxis.X, yAxis.X, zAxis.X, 0.0,
+    Matrix returnMatrix = Matrix(
+        xAxis.X, yAxis.X, zAxis.X, 0.0,
         xAxis.Y, yAxis.Y, zAxis.Y, 0.0,
         xAxis.Z, yAxis.Z, zAxis.Z, 0.0,
         -Vector3::Dot(xAxis, eye), -Vector3::Dot(yAxis, eye), -Vector3::Dot(zAxis, eye), 1.0);

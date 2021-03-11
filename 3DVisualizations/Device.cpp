@@ -35,7 +35,7 @@ BackBuffer Device::GetBuffer() const {
 }
 
 void Device::Render(const Camera& camera, const std::vector<Mesh>& meshes) {
-    Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3::UnitY());
+    Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3(0.0, 0.0, 1.0));
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,
         0.01f, 1.0f);
@@ -71,7 +71,7 @@ void Device::Render(const Camera& camera, const std::vector<Mesh>& meshes) {
 }
 
 void Device::Wireframe(const Camera& camera, const std::vector<Mesh>& meshes) {
-    Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3::UnitY());
+    Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3(0.0, 0.0, 1.0));
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,
         0.01f, 1.0f);
@@ -134,6 +134,12 @@ void Device::RasterizeTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Color4 color)
         p1 = temp;
     }
 
+    if (p1.Y == p2.Y && p1.X > p2.X) {
+        auto temp = p2;
+        p2 = p1;
+        p1 = temp;
+    }
+
     // Calculate inverse slopes
     double dP1P2, dP1P3;
 
@@ -148,7 +154,7 @@ void Device::RasterizeTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Color4 color)
         dP1P3 = 0;
 
     // Two cases for triangle shape once points are sorted
-    if (dP1P2 > dP1P3) {
+    if (dP1P2 == 0 || dP1P2 > dP1P3) {
         // Iterate over height of triangle
         for (auto y = (int)p1.Y; y <= (int)p3.Y; y++) {
             // Reverse once second point is reached
