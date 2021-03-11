@@ -4,20 +4,17 @@
 #include <algorithm>
 #include <limits>
 
-Device::Device() : deviceWidth(0), deviceHeight(0), depthBufferSize(0), backBuffer(BackBuffer()), depthBuffer(NULL) {}
+Device::Device()
+    : deviceWidth(0), deviceHeight(0), depthBufferSize(0),
+      backBuffer(BackBuffer()), depthBuffer(std::vector<double>()) {}
 
-Device::Device(int pixelWidth, int pixelHeight) : deviceWidth(pixelWidth), deviceHeight(pixelHeight), depthBufferSize(pixelWidth* pixelHeight) {
+Device::Device(int pixelWidth, int pixelHeight)
+    : deviceWidth(pixelWidth), deviceHeight(pixelHeight), depthBufferSize(pixelWidth * pixelHeight) {
     backBuffer = BackBuffer(pixelWidth, pixelHeight);
-    depthBuffer = new double[depthBufferSize];
-}
-
-void Device::Release() {
-    backBuffer.Release();
-    delete[] depthBuffer;
+    depthBuffer.resize(depthBufferSize);
 }
 
 void Device::Clear(Color4 fillColor) {
-
     // Buffer data is in 4 byte-per-pixel format, iterates from 0 to end of buffer
     for (auto index = 0; index < (backBuffer.scanLineSize * backBuffer.height); index += 4) {
         // BGRA is the color system used by Windows.
@@ -37,7 +34,7 @@ BackBuffer Device::GetBuffer() const {
     return backBuffer;
 }
 
-void Device::Render(Camera camera, std::vector<Mesh> meshes) {
+void Device::Render(const Camera& camera, const std::vector<Mesh>& meshes) {
     Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3::UnitY());
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,

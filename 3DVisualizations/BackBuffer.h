@@ -1,16 +1,14 @@
 #pragma once
 
+#include <vector>
+
 class BackBuffer {
 public:
-    char* buffer;
-
+    std::vector<char> data;
     int width, height, scanLineSize;
 
     BackBuffer();
-
     BackBuffer(int width, int height);
 
-    void Release();
-
-    char& operator [] (int i);
+    char& operator [] (int index);
 };

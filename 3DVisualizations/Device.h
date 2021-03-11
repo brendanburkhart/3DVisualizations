@@ -10,10 +10,8 @@
 
 class Device {
 private:
-    // Implementation of byte [] as a back buffer for rendering
     BackBuffer backBuffer;
-
-    double* depthBuffer;
+    std::vector<double> depthBuffer;
 
     int deviceWidth, deviceHeight, depthBufferSize;
 
@@ -40,10 +38,7 @@ private:
 
 public:
     Device();
-
     Device(int pixelWidth, int pixelHeight);
-
-    void Release();
 
     // This method is called to clear the back buffer with a specific color
     void Clear(Color4 fillColor);
@@ -54,7 +49,7 @@ public:
 
     // The main method of the engine that re-compute each vertex projection
     // during each frame
-    void Render(Camera camera, std::vector<Mesh> meshes);
+    void Render(const Camera& camera, const std::vector<Mesh>& meshes);
 
     int getWidth();
     int getHeight();

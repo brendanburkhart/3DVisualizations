@@ -153,6 +153,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Vector3.h" />
     <ClInclude Include="Vector4.h" />
+    <ClInclude Include="Visualization.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3DVisualizations.cpp" />
@@ -170,6 +171,7 @@
     </ClCompile>
     <ClCompile Include="Vector3.cpp" />
     <ClCompile Include="Vector4.cpp" />
+    <ClCompile Include="Visualization.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
