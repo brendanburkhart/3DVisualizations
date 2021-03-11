@@ -2,15 +2,15 @@
 
 class BackBuffer {
 public:
-    char *buffer;
-    
+    char* buffer;
+
     int width, height, scanLineSize;
 
-    BackBuffer ();
+    BackBuffer();
 
-    BackBuffer (int width, int height);
+    BackBuffer(int width, int height);
 
-    void Release ();
+    void Release();
 
-    char &operator [] (int i);
+    char& operator [] (int i);
 };

@@ -10,128 +10,90 @@
 
 #include "MainWindow.h"
 #include "Mesh.h"
+#include "ShapeMeshes.h"
 #include "Camera.h"
 #include "Device.h"
 
 #pragma comment(lib, "winmm.lib")
 
-int WINAPI wWinMain (HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow) {
-    constexpr auto filePathLength = 150;
-    wchar_t fileName[filePathLength];
-
-    int bytes = GetModuleFileName (NULL, fileName, filePathLength);
-    if (bytes == 0)
-        return -1;
-    else if (bytes == 150)
-        return -5;
-
-    // Get the directory the program is executing in
-    std::wstring directory;
-    std::wstring fileNameString (fileName);
-
-    const size_t last_slash_idx = fileNameString.rfind ('\\');
-    if (std::string::npos != last_slash_idx) {
-        directory = fileNameString.substr (0, last_slash_idx);
-    }
-    
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow) {
     std::vector<Mesh> Meshes;
+    Meshes.push_back(ShapeMeshes::Cube());
 
-    Mesh cube = Mesh (L"Cube", 8, 12);
+    Camera mainCamera = Camera();
 
-    cube.Vertices[0] = Vector3 (-3, 3, 3);
-    cube.Vertices[1] = Vector3 (3, 3, 3);
-    cube.Vertices[2] = Vector3 (-3, -3, 3);
-    cube.Vertices[3] = Vector3 (3, -3, 3);
-    cube.Vertices[4] = Vector3 (-3, 3, -3);
-    cube.Vertices[5] = Vector3 (3, 3, -3);
-    cube.Vertices[6] = Vector3 (-3, -3, -3);
-    cube.Vertices[7] = Vector3 (3, -3, -3);
-
-    cube.Faces[0] = Mesh::Face ( 0, 1, 2);
-    cube.Faces[1] = Mesh::Face ( 1, 2, 3);
-    cube.Faces[2] = Mesh::Face ( 1, 3, 7);
-    cube.Faces[3] = Mesh::Face ( 1, 5, 7);
-    cube.Faces[4] = Mesh::Face ( 0, 1, 4);
-    cube.Faces[5] = Mesh::Face ( 1, 4, 5);
-    cube.Faces[6] = Mesh::Face ( 2, 3, 7);
-    cube.Faces[7] = Mesh::Face ( 2, 6, 7);
-    cube.Faces[8] = Mesh::Face ( 2, 4, 6);
-    cube.Faces[9] = Mesh::Face ( 0, 4, 2);
-    cube.Faces[10] = Mesh::Face ( 4, 5, 7);
-    cube.Faces[11] = Mesh::Face ( 4, 6, 7);
-
-    Meshes.push_back(cube);
-
-    Camera mainCamera = Camera ();
-
-    mainCamera.Position = Vector3 (0, 0, 25);
-    mainCamera.Target = Vector3::Origin ();
+    mainCamera.Position = Vector3(0, 0, 25);
+    mainCamera.Target = Vector3::Origin();
 
     MainWindow win;
 
-    if (!win.Create (L"3DVisualizations", WS_OVERLAPPEDWINDOW)) {
+    if (!win.Create(L"3DVisualizations", WS_OVERLAPPEDWINDOW)) {
         return 0;
     }
 
-    win.setCamera (&mainCamera);
-    win.setMeshList (&Meshes);
+    win.setCamera(&mainCamera);
+    win.setMeshList(&Meshes);
 
-    ShowWindow (win.Window (), nCmdShow);
-    UpdateWindow (win.Window ());
+    ShowWindow(win.Window(), nCmdShow);
+    UpdateWindow(win.Window());
 
     // Run the message loop.
     MSG msg;                  // Next message from top of queue
     LONGLONG cur_time;        // Current system time
-    UINT32 time_count = 33;    // ms per frame, used as default if performance counter is not available
+    UINT32 time_count = 33;   // ms per frame, used as default if performance counter is not available
     LONGLONG perf_cnt;        // Performance timer frequency
     BOOL perf_flag = FALSE;   // Flag whether performance counter available, if false use timeGetTime()
     LONGLONG next_time = 0;   // Time to render next frame
     BOOL move_flag = TRUE;    // Flag if moved step has occurred yet
 
     // Is there a performance counter available?
-    if (QueryPerformanceFrequency ((LARGE_INTEGER *)&perf_cnt)) {
+    if (QueryPerformanceFrequency((LARGE_INTEGER*)&perf_cnt)) {
         // Yes, set time_count and timer choice flag
         perf_flag = TRUE;
         time_count = (UINT32)perf_cnt / 30;    // Calculate time per frame based on frequency (25 fps, 40 milliseconds per frame)
-        QueryPerformanceCounter ((LARGE_INTEGER *)&next_time);
-    } else {
-        // No performance counter, read in using timeGetTime
-        next_time = timeGetTime ();
+        QueryPerformanceCounter((LARGE_INTEGER*)&next_time);
     }
-    // Prime the message structure
-    PeekMessage (&msg, NULL, 0, 0, PM_NOREMOVE);
-    // Run till completed
+    else {
+        // No performance counter, read in using timeGetTime
+        next_time = timeGetTime();
+    }
+
+    // Initialize the message structure
+    PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
+
     while (msg.message != WM_QUIT) {
         // Is there a message to process?
-        if (PeekMessage (&msg, NULL, 0, 0, PM_REMOVE)) {
+        if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             // Dispatch the message
-            TranslateMessage (&msg);
-            DispatchMessage (&msg);
-        } else {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+        else {
             // Do we need to move?
             if (move_flag) {
                 move_flag = FALSE;
-                for (auto &mesh : Meshes) {
-                    mesh.Rotation = Vector3 (mesh.Rotation.X + 0.05f, mesh.Rotation.Y + 0.05f, mesh.Rotation.Z);
+                for (auto& mesh : Meshes) {
+                    mesh.Rotation = Vector3(mesh.Rotation.X + 0.05f, mesh.Rotation.Y + 0.05f, mesh.Rotation.Z);
                 }
             }
             // Use the appropriate method to get time
             if (perf_flag) {
-                QueryPerformanceCounter ((LARGE_INTEGER *)&cur_time);
-            } else {
-                cur_time = timeGetTime ();
+                QueryPerformanceCounter((LARGE_INTEGER*)&cur_time);
+            }
+            else {
+                cur_time = timeGetTime();
             }
 
             // Is it time to render the frame?
             if (cur_time > next_time) {
                 // Render scene
-                win.Render ();
+                win.Render();
                 // Set time for next frame
                 next_time += time_count;
                 // If more than a frame behind, drop the frames
                 if (next_time < cur_time) {
                     next_time = cur_time + time_count;
-                    OutputDebugString (L"Dropping frames...\n");
+                    OutputDebugString(L"Dropping frames...\n");
                 }
                 // Flag that we need to move objects again
                 move_flag = TRUE;

@@ -8,38 +8,38 @@
 #include "BackBuffer.h"
 
 template <class T>
-void SafeRelease (T **ppT) {
+void SafeRelease(T** ppT) {
     if (*ppT) {
-        (*ppT)->Release ();
+        (*ppT)->Release();
         *ppT = NULL;
     }
 }
 
 class MainWindow {
+private:
+    ID2D1Factory* pFactory;
+    ID2D1HwndRenderTarget* pRenderTarget;
 
-    ID2D1Factory            *pFactory;
-    ID2D1HwndRenderTarget   *pRenderTarget;
-    
     Device renderDevice;
-    Camera *renderCamera;
-    std::vector<Mesh> *meshes;
+    Camera* renderCamera;
+    std::vector<Mesh>* meshes;
 
-    ID2D1Bitmap *bitmap;
-    
-    HRESULT CreateGraphicsResources ();
-    void    DiscardGraphicsResources ();
-    void    OnPaint (UINT message, WPARAM wParam, LPARAM lParam);
-    void    Resize ();
-    void    Key (UINT message, WPARAM wParam, LPARAM lParam);
+    ID2D1Bitmap* bitmap;
+
+    HRESULT CreateGraphicsResources();
+    void    DiscardGraphicsResources();
+    void    OnPaint(UINT message, WPARAM wParam, LPARAM lParam);
+    void    Resize();
+    void    Key(UINT message, WPARAM wParam, LPARAM lParam);
 
 public:
-    static LRESULT CALLBACK WindowProc (HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    MainWindow ();
+    MainWindow();
 
-    ~MainWindow ();
+    ~MainWindow();
 
-    BOOL Create (
+    BOOL Create(
         PCWSTR lpWindowName,
         DWORD dwStyle,
         DWORD dwExStyle = 0,
@@ -51,18 +51,18 @@ public:
         HMENU hMenu = 0
     );
 
-    HWND Window () const;
+    HWND Window() const;
 
-    PCWSTR ClassName () const;
+    PCWSTR ClassName() const;
 
-    void Render ();
+    void Render();
 
-    void setCamera (Camera* camera);
-    void setMeshList (std::vector<Mesh>* meshes);
+    void setCamera(Camera* camera);
+    void setMeshList(std::vector<Mesh>* meshes);
 
 protected:
 
-    LRESULT HandleMessage (UINT uMsg, WPARAM wParam, LPARAM lParam);
+    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     HWND m_hwnd;
 };

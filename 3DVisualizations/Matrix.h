@@ -3,17 +3,17 @@
 class Vector3;
 
 class Matrix {
+private:
     double data[4 * 4];
 
 public:
-
-    Matrix (double value) {
+    Matrix(double value) {
         for (int i = 0; i < 4 * 4; i++) {
             data[i] = value;
         }
     }
 
-    Matrix (double M11, double M12, double M13, double M14,
+    Matrix(double M11, double M12, double M13, double M14,
         double M21, double M22, double M23, double M24,
         double M31, double M32, double M33, double M34,
         double M41, double M42, double M43, double M44) {
@@ -35,15 +35,15 @@ public:
         data[15] = M44;
     }
 
-    static Matrix Multiply (const Matrix& a, const Matrix& b);
+    static Matrix Multiply(const Matrix& a, const Matrix& b);
 
-    static Matrix LookAtLH (Vector3 eye, Vector3 target, Vector3 up);
+    static Matrix LookAtLH(Vector3 eye, Vector3 target, Vector3 up);
 
-    static Matrix PerspectiveFovLH (double fov, double aspectRatio, double zNear, double zFar);
+    static Matrix PerspectiveFovLH(double fov, double aspectRatio, double zNear, double zFar);
 
-    static Matrix RotationYawPitchRoll (double yRotation, double xRotation, double zRotation);
+    static Matrix RotationYawPitchRoll(double yRotation, double xRotation, double zRotation);
 
-    static Matrix Translation (Vector3 translation);
+    static Matrix Translation(Vector3 translation);
 
     Matrix operator * (const Matrix& multiplier);
 

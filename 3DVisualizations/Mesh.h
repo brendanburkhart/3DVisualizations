@@ -9,8 +9,8 @@ public:
     struct Face {
         int A, B, C;
 
-        Face ();
-        Face (int a, int b, int c);
+        Face();
+        Face(int a, int b, int c);
     };
 
     std::wstring Name;
@@ -19,5 +19,5 @@ public:
     Vector3 Position;
     Vector3 Rotation;
 
-    Mesh (std::wstring name, int verticesCount, int facesCount);
+    Mesh(std::wstring name, int verticesCount, int facesCount);
 };
