@@ -34,71 +34,63 @@ BackBuffer Device::GetBuffer() const {
     return backBuffer;
 }
 
-void Device::Render(const Camera& camera, const std::vector<Mesh>& meshes) {
+void Device::Render(const Camera& camera, const Mesh& mesh) {
     Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3(0.0, 0.0, 1.0));
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,
         0.01f, 1.0f);
 
-    for (const auto& mesh : meshes) {
-        // Make sure to apply rotation before translation 
+    // Make sure to apply rotation before translation 
 
-        Matrix rotationMatrix = Matrix::RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z);
-        Matrix translationMatrix = Matrix::Translation(mesh.Position);
+    Matrix rotationMatrix = Matrix::RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z);
+    Matrix translationMatrix = Matrix::Translation(mesh.Position);
 
-        Matrix worldMatrix = rotationMatrix * translationMatrix;
-        Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
+    Matrix worldMatrix = rotationMatrix * translationMatrix;
+    Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
-        auto faceIndex = 0;
-        for (const auto& face : mesh.Faces) {
-            // Get each vertex for this face
-            const auto& vertexA = mesh.Vertices[face.A];
-            const auto& vertexB = mesh.Vertices[face.B];
-            const auto& vertexC = mesh.Vertices[face.C];
+    auto faceIndex = 0;
+    for (const auto& face : mesh.Faces) {
+        // Get each vertex for this face
+        const auto& vertexA = mesh.Vertices[face.A];
+        const auto& vertexB = mesh.Vertices[face.B];
+        const auto& vertexC = mesh.Vertices[face.C];
 
-            // Transform to get the pixel
-            auto pixelA = Project(vertexA, transformMatrix);
-            auto pixelB = Project(vertexB, transformMatrix);
-            auto pixelC = Project(vertexC, transformMatrix);
+        // Transform to get the pixel
+        auto pixelA = Project(vertexA, transformMatrix);
+        auto pixelB = Project(vertexB, transformMatrix);
+        auto pixelC = Project(vertexC, transformMatrix);
 
-            Vector3 normal = Vector3::Normalize(Vector3::TransformCoordinate(face.normal, worldMatrix));
-            Vector3 position = Vector3::TransformCoordinate(face.position, worldMatrix);
-            Vector3 light = Vector3::Normalize(Vector3::Subtract(camera.Light, position));
-            // Rasterize face as a triangles
-            RasterizeTriangle(pixelA, pixelB, pixelC, Color4::Shade(light, normal, mesh.color, 0.4));
-            faceIndex++;
-        }
+        Vector3 normal = Vector3::Normalize(Vector3::TransformCoordinate(face.normal, worldMatrix));
+        Vector3 position = Vector3::TransformCoordinate(face.position, worldMatrix);
+        Vector3 light = Vector3::Normalize(Vector3::Subtract(camera.Light, position));
+        // Rasterize face as a triangles
+        RasterizeTriangle(pixelA, pixelB, pixelC, Color4::Shade(light, normal, mesh.color, 0.4));
+        faceIndex++;
     }
 }
 
-void Device::Wireframe(const Camera& camera, const std::vector<Mesh>& meshes) {
+void Device::RenderWireframe(const Camera& camera, const Wireframe& wireframe) {
     Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3(0.0, 0.0, 1.0));
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,
         0.01f, 1.0f);
 
-    for (const auto& mesh : meshes) {
-        Matrix rotationMatrix = Matrix::RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z);
-        Matrix translationMatrix = Matrix::Translation(mesh.Position);
+    Matrix rotationMatrix = Matrix::RotationYawPitchRoll(
+        wireframe.Rotation.Y, wireframe.Rotation.X, wireframe.Rotation.Z);
+    Matrix translationMatrix = Matrix::Translation(wireframe.Position);
 
-        Matrix worldMatrix = rotationMatrix * translationMatrix;
-        Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
+    Matrix worldMatrix = rotationMatrix * translationMatrix;
+    Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
-        for (const auto& face : mesh.Faces) {
-            // Get each vertex for this face
-            const auto& vertexA = mesh.Vertices[face.A];
-            const auto& vertexB = mesh.Vertices[face.B];
-            const auto& vertexC = mesh.Vertices[face.C];
+    for (const auto& edge : wireframe.Edges) {
+        const auto& vertexA = wireframe.Vertices[edge.first];
+        const auto& vertexB = wireframe.Vertices[edge.second];
 
-            // Transform to get the pixel
-            auto pixelA = Project(vertexA, transformMatrix);
-            auto pixelB = Project(vertexB, transformMatrix);
-            auto pixelC = Project(vertexC, transformMatrix);
+        // Transform to get the pixel
+        auto pixelA = Project(vertexA, transformMatrix);
+        auto pixelB = Project(vertexB, transformMatrix);
 
-            DrawLine(pixelA, pixelB, mesh.color);
-            DrawLine(pixelB, pixelC, mesh.color);
-            DrawLine(pixelA, pixelC, mesh.color);
-        }
+        DrawLine(pixelA, pixelB, wireframe.color);
     }
 }
 
