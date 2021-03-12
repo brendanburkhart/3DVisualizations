@@ -4,8 +4,8 @@
 #include "ShapeMeshes.h"
 
 Visualization::Visualization() {
-    wireframes.push_back(ShapeMeshes::DodecahedronWireframe());
-    wireframes.push_back(ShapeMeshes::EmbeddedCube());
+    dodecahedron = ShapeMeshes::Dodecahedron();
+    cube = ShapeMeshes::EmbeddedCube();
 
     renderCamera = Camera();
     renderCamera.Position = Vector3(25, 0, 0);
@@ -14,27 +14,14 @@ Visualization::Visualization() {
 }
 
 void Visualization::Update(double elapsed_seconds) {
-    for (auto& mesh : meshes) {
-        double rotation = 0.2 * (elapsed_seconds);
-        mesh.Rotation = Vector3(mesh.Rotation.X + rotation, mesh.Rotation.Y + rotation, mesh.Rotation.Z);
-    }
-
-    for (auto& wireframe : wireframes) {
-        double rotation = 0.2 * (elapsed_seconds);
-        wireframe.Rotation = Vector3(wireframe.Rotation.X + rotation, wireframe.Rotation.Y + rotation, wireframe.Rotation.Z);
-    }
+    Matrix rotation = Matrix::RotationYawPitchRoll(0.0, 0.0, 0.05);
+    renderCamera.Position = Vector3::TransformCoordinate(renderCamera.Position, rotation);
+    renderCamera.Light = Vector3::TransformCoordinate(renderCamera.Light, rotation);
 }
 
 void Visualization::Render(Device& renderDevice) {
     renderDevice.Clear(Color4(1.0, 1.0, 1.0, 1.0));
 
-    for (const auto& mesh : meshes)
-    {
-        renderDevice.Render(renderCamera, mesh);
-    }
-
-    for (const auto& wireframe : wireframes)
-    {
-        renderDevice.RenderWireframe(renderCamera, wireframe);
-    }
+    renderDevice.RenderSurface(renderCamera, dodecahedron);
+    //renderDevice.RenderWireframe(renderCamera, dodecahedron);
 }

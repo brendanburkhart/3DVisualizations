@@ -34,19 +34,13 @@ BackBuffer Device::GetBuffer() const {
     return backBuffer;
 }
 
-void Device::Render(const Camera& camera, const Mesh& mesh) {
+void Device::RenderSurface(const Camera& camera, const Mesh& mesh) {
     Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3(0.0, 0.0, 1.0));
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,
         0.01f, 1.0f);
 
-    // Make sure to apply rotation before translation 
-
-    Matrix rotationMatrix = Matrix::RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z);
-    Matrix translationMatrix = Matrix::Translation(mesh.Position);
-
-    Matrix worldMatrix = rotationMatrix * translationMatrix;
-    Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
+    Matrix transformMatrix = viewMatrix * projectionMatrix;
 
     auto faceIndex = 0;
     for (const auto& face : mesh.Faces) {
@@ -60,37 +54,30 @@ void Device::Render(const Camera& camera, const Mesh& mesh) {
         auto pixelB = Project(vertexB, transformMatrix);
         auto pixelC = Project(vertexC, transformMatrix);
 
-        Vector3 normal = Vector3::Normalize(Vector3::TransformCoordinate(face.normal, worldMatrix));
-        Vector3 position = Vector3::TransformCoordinate(face.position, worldMatrix);
-        Vector3 light = Vector3::Normalize(Vector3::Subtract(camera.Light, position));
+        Vector3 light = Vector3::Normalize(Vector3::Subtract(camera.Light, face.position));
         // Rasterize face as a triangles
-        RasterizeTriangle(pixelA, pixelB, pixelC, Color4::Shade(light, normal, mesh.color, 0.4));
+        RasterizeTriangle(pixelA, pixelB, pixelC, Color4::Shade(light, face.normal, mesh.color, 0.4));
         faceIndex++;
     }
 }
 
-void Device::RenderWireframe(const Camera& camera, const Wireframe& wireframe) {
+void Device::RenderWireframe(const Camera& camera, const Mesh& mesh) {
     Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3(0.0, 0.0, 1.0));
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,
         0.01f, 1.0f);
 
-    Matrix rotationMatrix = Matrix::RotationYawPitchRoll(
-        wireframe.Rotation.Y, wireframe.Rotation.X, wireframe.Rotation.Z);
-    Matrix translationMatrix = Matrix::Translation(wireframe.Position);
+    Matrix transformMatrix = viewMatrix * projectionMatrix;
 
-    Matrix worldMatrix = rotationMatrix * translationMatrix;
-    Matrix transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
-
-    for (const auto& edge : wireframe.Edges) {
-        const auto& vertexA = wireframe.Vertices[edge.first];
-        const auto& vertexB = wireframe.Vertices[edge.second];
+    for (const auto& edge : mesh.Edges) {
+        const auto& vertexA = mesh.Vertices[edge.first];
+        const auto& vertexB = mesh.Vertices[edge.second];
 
         // Transform to get the pixel
         auto pixelA = Project(vertexA, transformMatrix);
         auto pixelB = Project(vertexB, transformMatrix);
 
-        DrawLine(pixelA, pixelB, wireframe.color);
+        DrawLine(pixelA, pixelB, mesh.color);
     }
 }
 
@@ -133,19 +120,25 @@ void Device::RasterizeTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Color4 color)
 
     // Calculate inverse slopes
     double dP1P2, dP1P3;
+    bool horizontal = false;
 
-    if (p2.Y - p1.Y > 0)
+    if (p2.Y - p1.Y > 0) {
         dP1P2 = (p2.X - p1.X) / (p2.Y - p1.Y);
-    else
+    }
+    else {
         dP1P2 = 0;
+        horizontal = true;
+    }
 
-    if (p3.Y - p1.Y > 0)
+    if (p3.Y - p1.Y > 0) {
         dP1P3 = (p3.X - p1.X) / (p3.Y - p1.Y);
-    else
+    }
+    else {
         dP1P3 = 0;
+    }
 
     // Two cases for triangle shape once points are sorted
-    if (dP1P2 == 0 || dP1P2 > dP1P3) {
+    if (horizontal || dP1P2 > dP1P3) {
         // Iterate over height of triangle
         for (auto y = (int)p1.Y; y <= (int)p3.Y; y++) {
             // Reverse once second point is reached

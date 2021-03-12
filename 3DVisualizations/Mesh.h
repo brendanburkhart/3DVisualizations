@@ -6,19 +6,6 @@
 #include "Color4.h"
 #include "Vector3.h"
 
-class Wireframe {
-public:
-    std::vector<Vector3> Vertices;
-    std::vector<std::pair<size_t, size_t>> Edges;
-
-    Color4 color;
-
-    Vector3 Position;
-    Vector3 Rotation;
-
-    Wireframe();
-};
-
 class Mesh {
 public:
     struct Face {
@@ -32,11 +19,9 @@ public:
 
     std::vector<Vector3> Vertices;
     std::vector<Mesh::Face> Faces;
+    std::vector<std::pair<size_t, size_t>> Edges;
 
     Color4 color;
-
-    Vector3 Position;
-    Vector3 Rotation;
 
     Mesh();
 };

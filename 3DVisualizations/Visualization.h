@@ -13,6 +13,6 @@ public:
 
 private:
     Camera renderCamera;
-    std::vector<Mesh> meshes;
-    std::vector<Wireframe> wireframes;
+    Mesh dodecahedron;
+    Mesh cube;
 };

@@ -50,8 +50,8 @@ public:
     // into the front buffer. 
     BackBuffer GetBuffer() const;
 
-    void Render(const Camera& camera, const Mesh& mesh);
-    void RenderWireframe(const Camera& camera, const Wireframe& wireframe);
+    void RenderSurface(const Camera& camera, const Mesh& mesh);
+    void RenderWireframe(const Camera& camera, const Mesh& mesh);
 
     int getWidth();
     int getHeight();
