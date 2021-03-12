@@ -153,6 +153,8 @@ void MainWindow::OnKeyDown(UINT message, WPARAM wParam, LPARAM lParam) {
     switch (wParam) {
     case VK_ESCAPE:
         PostMessage(m_hwnd, WM_CLOSE, NULL, NULL);
+    default:
+        visualization.OnKeyDown(wParam, lParam);
     }
 
     DefWindowProc(m_hwnd, message, wParam, lParam);
