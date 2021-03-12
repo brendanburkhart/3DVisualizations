@@ -17,5 +17,9 @@ private:
     Mesh dodecahedron;
     Mesh cube;
 
+    Vector3 viewRotation;
+
     bool wireframeOnly;
+
+    void resetView();
 };

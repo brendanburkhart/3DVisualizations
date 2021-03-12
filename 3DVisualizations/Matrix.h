@@ -45,7 +45,7 @@ public:
 
     static Matrix Translation(Vector3 translation);
 
-    Matrix operator * (const Matrix& multiplier);
+    Matrix operator * (const Matrix& multiplier) const;
 
     friend Vector3;
 };

@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <limits>
 
+constexpr double epsilon = 0.00001;
+
 Device::Device()
     : deviceWidth(0), deviceHeight(0), depthBufferSize(0),
       backBuffer(BackBuffer()), depthBuffer(std::vector<double>()) {}
@@ -34,13 +36,13 @@ BackBuffer Device::GetBuffer() const {
     return backBuffer;
 }
 
-void Device::RenderSurface(const Camera& camera, const Mesh& mesh) {
+void Device::RenderSurface(const Camera& camera, const Mesh& mesh, const Matrix& transform) {
     Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3(0.0, 0.0, 1.0));
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,
         0.01f, 1.0f);
 
-    Matrix transformMatrix = viewMatrix * projectionMatrix;
+    Matrix transformMatrix = transform * viewMatrix * projectionMatrix;
 
     auto faceIndex = 0;
     for (const auto& face : mesh.Faces) {
@@ -54,20 +56,23 @@ void Device::RenderSurface(const Camera& camera, const Mesh& mesh) {
         auto pixelB = Project(vertexB, transformMatrix);
         auto pixelC = Project(vertexC, transformMatrix);
 
-        Vector3 light = Vector3::Normalize(Vector3::Subtract(camera.Light, face.position));
+        Vector3 normal = Vector3::Normalize(Vector3::TransformCoordinate(face.normal, transform));
+        Vector3 position = Vector3::TransformCoordinate(face.position, transform);
+        Vector3 light = Vector3::Normalize(Vector3::Subtract(camera.Light, position));
+
         // Rasterize face as a triangles
-        RasterizeTriangle(pixelA, pixelB, pixelC, Color4::Shade(light, face.normal, mesh.color, 0.4));
+        RasterizeTriangle(pixelA, pixelB, pixelC, Color4::Shade(light, normal, mesh.color, 0.25));
         faceIndex++;
     }
 }
 
-void Device::RenderWireframe(const Camera& camera, const Mesh& mesh) {
+void Device::RenderWireframe(const Camera& camera, const Mesh& mesh, const Matrix& transform) {
     Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3(0.0, 0.0, 1.0));
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,
         0.01f, 1.0f);
 
-    Matrix transformMatrix = viewMatrix * projectionMatrix;
+    Matrix transformMatrix = transform * viewMatrix * projectionMatrix;
 
     for (const auto& edge : mesh.Edges) {
         const auto& vertexA = mesh.Vertices[edge.first];
@@ -112,7 +117,11 @@ void Device::RasterizeTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Color4 color)
         p1 = temp;
     }
 
-    if (p1.Y == p2.Y && p1.X > p2.X) {
+    if ((abs(p1.Y - p3.Y) < 0.2)) {
+        return;
+    }
+
+    if ((abs(p1.Y - p2.Y) < epsilon) && p1.X > p2.X) {
         auto temp = p2;
         p2 = p1;
         p1 = temp;
@@ -122,7 +131,7 @@ void Device::RasterizeTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Color4 color)
     double dP1P2, dP1P3;
     bool horizontal = false;
 
-    if (p2.Y - p1.Y > 0) {
+    if (p2.Y - p1.Y > epsilon) {
         dP1P2 = (p2.X - p1.X) / (p2.Y - p1.Y);
     }
     else {
@@ -130,7 +139,7 @@ void Device::RasterizeTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Color4 color)
         horizontal = true;
     }
 
-    if (p3.Y - p1.Y > 0) {
+    if (p3.Y - p1.Y > epsilon) {
         dP1P3 = (p3.X - p1.X) / (p3.Y - p1.Y);
     }
     else {
@@ -172,8 +181,8 @@ double Device::Interpolate(double min, double max, double gradient) {
 }
 
 void Device::ProcessScanLine(int y, Vector3 pa, Vector3 pb, Vector3 pc, Vector3 pd, Color4 color) {
-    auto gradient1 = pa.Y != pb.Y ? (y - pa.Y) / (pb.Y - pa.Y) : 1;
-    auto gradient2 = pc.Y != pd.Y ? (y - pc.Y) / (pd.Y - pc.Y) : 1;
+    auto gradient1 = (abs(pa.Y - pb.Y) > epsilon) ? (y - pa.Y) / (pb.Y - pa.Y) : 1;
+    auto gradient2 = (abs(pc.Y - pd.Y) > epsilon) ? (y - pc.Y) / (pd.Y - pc.Y) : 1;
 
     int sx = (int)Interpolate(pa.X, pb.X, gradient1);
     int ex = (int)Interpolate(pc.X, pd.X, gradient2);

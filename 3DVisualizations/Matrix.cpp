@@ -99,6 +99,6 @@ Matrix Matrix::Translation(Vector3 translation) {
     );
 }
 
-Matrix Matrix::operator * (const Matrix& multiplier) {
+Matrix Matrix::operator * (const Matrix& multiplier) const {
     return Matrix::Multiply(*this, multiplier);
 }
