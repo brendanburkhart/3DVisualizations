@@ -77,6 +77,10 @@ void addCubeFace(size_t index, int a, int b, int c, int d, Mesh& mesh) {
     auto second = Mesh::Face(a, c, d);
     second.normal = normal;
     second.position = position;
+
+    Color4 color = Color4(0.6, 0.6, 0.0, 1.0);
+    first.color = color;
+    second.color = color;
     
     mesh.Faces.push_back(first);
     mesh.Faces.push_back(second);
@@ -133,8 +137,8 @@ Mesh ShapeMeshes::Dodecahedron() {
     addDodecahedronVertices(dodecahedron.Vertices);
 
     addPentagonFace(0, 0, 12, 14, 4, 8, Color4(0.0, 0.75, 0.25, 1.0), dodecahedron);
-    addPentagonFace(1, 6, 14, 12, 2, 10, Color4(0.75, 0.0, 0.25, 1.0), dodecahedron);
-    addPentagonFace(2, 12, 0, 16, 17, 2, Color4(0.75, 0.0, 0.25, 1.0), dodecahedron);
+    addPentagonFace(1, 6, 14, 12, 2, 10, Color4(0.75, 0.0, 0.45, 1.0), dodecahedron);
+    addPentagonFace(2, 12, 0, 16, 17, 2, Color4(0.75, 0.0, 0.45, 1.0), dodecahedron);
     addPentagonFace(3, 14, 6, 19, 18, 4, Color4(0.5, 0.75, 0.0, 1.0), dodecahedron);
     addPentagonFace(4, 0, 8, 9, 1, 16, Color4(0.0, 0.75, 0.25, 1.0), dodecahedron);
     addPentagonFace(5, 18, 5, 9, 8, 4, Color4(0.0, 0.25, 0.75, 1.0), dodecahedron);
@@ -187,33 +191,59 @@ Mesh ShapeMeshes::Dodecahedron() {
     return dodecahedron;
 }
 
-Mesh ShapeMeshes::EmbeddedCube() {
+Mesh ShapeMeshes::EmbeddedCube(int i) {
     Mesh cube;
 
     addDodecahedronVertices(cube.Vertices);
 
-    addCubeFace(0, 0, 14, 18, 9, cube);
-    addCubeFace(1, 9, 18, 7, 13, cube);
-    addCubeFace(3, 13, 7, 10, 17, cube);
-    addCubeFace(4, 17, 10, 14, 0, cube);
-    addCubeFace(5, 0, 9, 13, 17, cube);
-    addCubeFace(6, 10, 7, 18, 14, cube);
+    if (i == 0) {
+        addCubeFace(0, 0, 1, 3, 2, cube);
+        addCubeFace(1, 0, 4, 5, 1, cube);
+        addCubeFace(3, 4, 6, 7, 5, cube);
+        addCubeFace(4, 6, 2, 3, 7, cube);
+        addCubeFace(5, 0, 2, 6, 4, cube);
+        addCubeFace(6, 1, 5, 7, 3, cube);
 
-    addEdge(cube, 0, 9);
-    addEdge(cube, 0, 14);
-    addEdge(cube, 0, 17);
+        addEdge(cube, 0, 1);
+        addEdge(cube, 0, 2);
+        addEdge(cube, 0, 4);
 
-    addEdge(cube, 7, 10);
-    addEdge(cube, 7, 13);
-    addEdge(cube, 7, 18);
+        addEdge(cube, 6, 7);
+        addEdge(cube, 6, 4);
+        addEdge(cube, 6, 2);
 
-    addEdge(cube, 9, 13);
-    addEdge(cube, 9, 18);
+        addEdge(cube, 5, 4);
+        addEdge(cube, 5, 1);
+        addEdge(cube, 5, 7);
 
-    addEdge(cube, 10, 14);
-    addEdge(cube, 10, 17);
-    addEdge(cube, 13, 17);
-    addEdge(cube, 14, 18);
+        addEdge(cube, 3, 1);
+        addEdge(cube, 3, 2);
+        addEdge(cube, 3, 7);
+    }
+    else if (i == 1) {
+        addCubeFace(0, 0, 14, 18, 9, cube);
+        addCubeFace(1, 9, 18, 7, 13, cube);
+        addCubeFace(3, 13, 7, 10, 17, cube);
+        addCubeFace(4, 17, 10, 14, 0, cube);
+        addCubeFace(5, 0, 9, 13, 17, cube);
+        addCubeFace(6, 10, 7, 18, 14, cube);
+
+        addEdge(cube, 0, 9);
+        addEdge(cube, 0, 14);
+        addEdge(cube, 0, 17);
+
+        addEdge(cube, 7, 10);
+        addEdge(cube, 7, 13);
+        addEdge(cube, 7, 18);
+
+        addEdge(cube, 9, 13);
+        addEdge(cube, 9, 18);
+
+        addEdge(cube, 10, 14);
+        addEdge(cube, 10, 17);
+        addEdge(cube, 13, 17);
+        addEdge(cube, 14, 18);
+    }
 
     return cube;
 }

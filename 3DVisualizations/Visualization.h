@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <memory>
 
 #include "BackBuffer.h"
@@ -24,12 +25,16 @@ public:
 private:
     Camera renderCamera;
     Mesh dodecahedron;
-    Mesh cube;
+    std::array<Mesh, 5> cubes;
+    int n = 2;
 
     Quaternion viewRotation;
 
     bool wireframeOnly;
     bool fixWireframe;
+
+    bool renderCube;
+    bool cubeWireframe;
 
     std::unique_ptr<Slerp> slerp;
 

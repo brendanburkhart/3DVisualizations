@@ -12,10 +12,14 @@ Visualization::Visualization()
       viewRotation(Quaternion::EulerAngle(0.0, Vector3(1.0, 0.0, 0.0)))
 {
     dodecahedron = ShapeMeshes::Dodecahedron();
-    cube = ShapeMeshes::EmbeddedCube();
+    cubes[0] = ShapeMeshes::EmbeddedCube(0);
+    cubes[1] = ShapeMeshes::EmbeddedCube(1);
 
     wireframeOnly = false;
     fixWireframe = false;
+
+    renderCube = false;
+    cubeWireframe = false;
 
     renderCamera = Camera();
     renderCamera.Position = Vector3(25, 0, 0);
@@ -43,6 +47,12 @@ void Visualization::OnKeyDown(WPARAM wParam, LPARAM lParam) {
         break;
     case 'F':
         fixWireframe = !fixWireframe;
+        break;
+    case 'C':
+        renderCube = !renderCube;
+        break;
+    case 'N':
+        cubeWireframe = !cubeWireframe;
         break;
     case 'S':
         // rotate by (PI - dihedral angle) around y-axis
@@ -123,5 +133,22 @@ void Visualization::Render(Device& renderDevice) {
     if (wireframeOnly || fixWireframe) {
         
         renderDevice.RenderWireframe(renderCamera, dodecahedron, rotation, Color4(0.0, 0.0, 0.0, 1.0));
+    }
+
+    if (renderCube) {
+        if (cubeWireframe) {
+            for (int i = 0; i < n; i++) {
+                Color4 color = Color4(
+                    std::fmod(0.25 * (i + 1), 1.0),
+                    std::fmod(0.50 * (i + 1), 1.0),
+                    std::fmod(0.75 * (i + 1), 1.0),
+                    1.0
+                );
+                renderDevice.RenderWireframe(renderCamera, cubes[i], rotation, color);
+            }
+        }
+        else {
+            renderDevice.RenderSurface(renderCamera, cubes[0], viewRotation);
+        }
     }
 }

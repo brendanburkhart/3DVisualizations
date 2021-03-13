@@ -202,6 +202,13 @@ void Device::ProcessScanLine(int y, Vector3 pa, Vector3 pb, Vector3 pc, Vector3 
     }
 }
 
+double delta(int x, int y) {
+    double x2 = x * x;
+    double y2 = y * y;
+
+    return sqrt(x2 + y2);
+}
+
 void Device::DrawLine(Vector3 pointA, Vector3 pointB, Color4 color) {
     int x0 = (int)pointA.X;
     int y0 = (int)pointA.Y;
@@ -214,13 +221,18 @@ void Device::DrawLine(Vector3 pointA, Vector3 pointB, Color4 color) {
     auto sy = (y0 < y1) ? 1 : -1;
     auto err = dx - dy;
 
-    while (true) {
-        DrawPoint(Vector3(x0, y0, 0), color);
+    int x = x0;
+    int y = y0;
 
-        if ((x0 == x1) && (y0 == y1)) { break; };
+    while (true) {
+        double t = delta(x - x0, y - y0) / delta(dx, dy);
+        double z = Interpolate(pointA.Z, pointB.Z, t);
+        DrawPoint(Vector3(x, y, z), color);
+
+        if ((x == x1) && (y == y1)) { break; };
         auto e2 = 2 * err;
-        if (e2 > -dy) { err -= dy; x0 += sx; }
-        if (e2 < dx) { err += dx; y0 += sy; }
+        if (e2 > -dy) { err -= dy; x += sx; }
+        if (e2 < dx) { err += dx; y += sy; }
     }
 }
 
