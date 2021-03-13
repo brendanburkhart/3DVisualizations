@@ -26,7 +26,9 @@ private:
     Camera renderCamera;
     Mesh dodecahedron;
     std::array<Mesh, 5> cubes;
-    int n = 2;
+    std::array<Mesh, 5> largeCubes;
+
+    int n = 5;
 
     Quaternion viewRotation;
 
@@ -35,6 +37,7 @@ private:
 
     bool renderCube;
     bool cubeWireframe;
+    bool enlargeCubes;
 
     std::unique_ptr<Slerp> slerp;
 

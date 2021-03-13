@@ -12,14 +12,24 @@ Visualization::Visualization()
       viewRotation(Quaternion::EulerAngle(0.0, Vector3(1.0, 0.0, 0.0)))
 {
     dodecahedron = ShapeMeshes::Dodecahedron();
-    cubes[0] = ShapeMeshes::EmbeddedCube(0);
-    cubes[1] = ShapeMeshes::EmbeddedCube(1);
+    cubes[0] = ShapeMeshes::EmbeddedCube(0, false);
+    cubes[1] = ShapeMeshes::EmbeddedCube(1, false);
+    cubes[2] = ShapeMeshes::EmbeddedCube(2, false);
+    cubes[3] = ShapeMeshes::EmbeddedCube(3, false);
+    cubes[4] = ShapeMeshes::EmbeddedCube(4, false);
+
+    largeCubes[0] = ShapeMeshes::EmbeddedCube(0, true);
+    largeCubes[1] = ShapeMeshes::EmbeddedCube(1, true);
+    largeCubes[2] = ShapeMeshes::EmbeddedCube(2, true);
+    largeCubes[3] = ShapeMeshes::EmbeddedCube(3, true);
+    largeCubes[4] = ShapeMeshes::EmbeddedCube(4, true);
 
     wireframeOnly = false;
     fixWireframe = false;
 
     renderCube = false;
     cubeWireframe = false;
+    enlargeCubes = false;
 
     renderCamera = Camera();
     renderCamera.Position = Vector3(25, 0, 0);
@@ -51,10 +61,28 @@ void Visualization::OnKeyDown(WPARAM wParam, LPARAM lParam) {
     case 'C':
         renderCube = !renderCube;
         break;
-    case 'N':
+    case 'L':
+        enlargeCubes = !enlargeCubes;
+        break;
+    case 'W':
         cubeWireframe = !cubeWireframe;
         break;
-    case 'S':
+    case '1':
+        n = 1;
+        break;
+    case '2':
+        n = 2;
+        break;
+    case '3':
+        n = 3;
+        break;
+    case '4':
+        n = 4;
+        break;
+    case '5':
+        n = 5;
+        break;
+    case 'A':
         // rotate by (PI - dihedral angle) around y-axis
         if (slerp) break;
         target = Quaternion::EulerAngle(
@@ -63,7 +91,7 @@ void Visualization::OnKeyDown(WPARAM wParam, LPARAM lParam) {
         );
         slerp = std::make_unique<Slerp>(viewRotation, target, 1.0);
         break;
-    case '1':
+    case 'S':
         // rotate by 2pi/3 around x-axis
         if (slerp) break;
         delta = Quaternion::EulerAngle(
@@ -148,7 +176,14 @@ void Visualization::Render(Device& renderDevice) {
             }
         }
         else {
-            renderDevice.RenderSurface(renderCamera, cubes[0], viewRotation);
+            for (int i = 0; i < n; i++) {
+                if (enlargeCubes) {
+                    renderDevice.RenderSurface(renderCamera, largeCubes[i], viewRotation);
+                }
+                else {
+                    renderDevice.RenderSurface(renderCamera, cubes[i], viewRotation);
+                }
+            }
         }
     }
 }

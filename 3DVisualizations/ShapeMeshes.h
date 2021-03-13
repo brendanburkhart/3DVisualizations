@@ -7,5 +7,5 @@ class ShapeMeshes
 public:
     static Mesh Cube();
     static Mesh Dodecahedron();
-    static Mesh EmbeddedCube(int i);
+    static Mesh EmbeddedCube(int i, bool large);
 };
