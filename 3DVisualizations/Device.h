@@ -31,8 +31,8 @@ private:
     // Interpolates gradient between min and max
     double Interpolate(double min, double max, double gradient);
 
-    // Draws a line between point A and point B using Bresenham's algorithm
-    void DrawLine(Vector3 pointA, Vector3 pointB, Color4 color);
+    // Draws a line between point A and point B using modified Bresenham's algorithm
+    void DrawLine(Vector3 pointA, Vector3 pointB, Color4 color, int width);
 
     // DrawPoint calls PutPixel but does the clipping operation before
     void DrawPoint(Vector3 point, Color4 color);
@@ -52,7 +52,8 @@ public:
     BackBuffer GetBuffer() const;
 
     void RenderSurface(const Camera& camera, const Mesh& mesh, const Quaternion& rotation);
-    void RenderWireframe(const Camera& camera, const Mesh& mesh, const Quaternion& rotation, const Color4& color);
+    void RenderWireframe(const Camera& camera, const Mesh& mesh, const Quaternion& rotation,
+        const Color4& color, int thickness);
 
     int getWidth();
     int getHeight();

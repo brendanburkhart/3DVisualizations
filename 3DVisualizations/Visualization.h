@@ -13,6 +13,8 @@ int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
+constexpr int N = 5;
+
 class Visualization
 {
 public:
@@ -25,18 +27,16 @@ public:
 private:
     Camera renderCamera;
     Mesh dodecahedron;
-    std::array<Mesh, 5> cubes;
-    std::array<Mesh, 5> largeCubes;
 
-    int n = 5;
+    std::array<Mesh, N> cubes;
+    std::array<Mesh, N> largeCubes;
+    std::array<bool, N> cubeToggles;
 
     Quaternion viewRotation;
 
     bool wireframeOnly;
     bool fixWireframe;
 
-    bool renderCube;
-    bool cubeWireframe;
     bool enlargeCubes;
 
     std::unique_ptr<Slerp> slerp;

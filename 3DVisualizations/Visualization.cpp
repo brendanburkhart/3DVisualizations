@@ -12,23 +12,16 @@ Visualization::Visualization()
       viewRotation(Quaternion::EulerAngle(0.0, Vector3(1.0, 0.0, 0.0)))
 {
     dodecahedron = ShapeMeshes::Dodecahedron();
-    cubes[0] = ShapeMeshes::EmbeddedCube(0, false);
-    cubes[1] = ShapeMeshes::EmbeddedCube(1, false);
-    cubes[2] = ShapeMeshes::EmbeddedCube(2, false);
-    cubes[3] = ShapeMeshes::EmbeddedCube(3, false);
-    cubes[4] = ShapeMeshes::EmbeddedCube(4, false);
 
-    largeCubes[0] = ShapeMeshes::EmbeddedCube(0, true);
-    largeCubes[1] = ShapeMeshes::EmbeddedCube(1, true);
-    largeCubes[2] = ShapeMeshes::EmbeddedCube(2, true);
-    largeCubes[3] = ShapeMeshes::EmbeddedCube(3, true);
-    largeCubes[4] = ShapeMeshes::EmbeddedCube(4, true);
+    for (int i = 0; i < N; i++) {
+        cubes[i] = ShapeMeshes::EmbeddedCube(i, false);
+        largeCubes[i] = ShapeMeshes::EmbeddedCube(i, true);
+        cubeToggles[i] = false;
+    }
 
     wireframeOnly = false;
     fixWireframe = false;
 
-    renderCube = false;
-    cubeWireframe = false;
     enlargeCubes = false;
 
     renderCamera = Camera();
@@ -58,29 +51,23 @@ void Visualization::OnKeyDown(WPARAM wParam, LPARAM lParam) {
     case 'F':
         fixWireframe = !fixWireframe;
         break;
-    case 'C':
-        renderCube = !renderCube;
-        break;
     case 'L':
         enlargeCubes = !enlargeCubes;
         break;
-    case 'W':
-        cubeWireframe = !cubeWireframe;
-        break;
     case '1':
-        n = 1;
+        cubeToggles[0] = !cubeToggles[0];
         break;
     case '2':
-        n = 2;
+        cubeToggles[1] = !cubeToggles[1];
         break;
     case '3':
-        n = 3;
+        cubeToggles[2] = !cubeToggles[2];
         break;
     case '4':
-        n = 4;
+        cubeToggles[3] = !cubeToggles[3];
         break;
     case '5':
-        n = 5;
+        cubeToggles[4] = !cubeToggles[4];
         break;
     case 'A':
         // rotate by (PI - dihedral angle) around y-axis
@@ -158,32 +145,30 @@ void Visualization::Render(Device& renderDevice) {
         rotation = Quaternion::EulerAngle(0.0, Vector3(1.0, 0.0, 0.0));
     }
 
-    if (wireframeOnly || fixWireframe) {
-        
-        renderDevice.RenderWireframe(renderCamera, dodecahedron, rotation, Color4(0.0, 0.0, 0.0, 1.0));
+    for (int i = 0; i < N; i++) {
+        if (!cubeToggles[i]) continue;
+
+        /*if (cubeWireframe) {
+            Color4 color = Color4(
+                std::fmod(0.25 * (i + 1), 1.0),
+                std::fmod(0.50 * (i + 1), 1.0),
+                std::fmod(0.75 * (i + 1), 1.0),
+                1.0
+            );
+            renderDevice.RenderWireframe(renderCamera, cubes[i], rotation, color);
+        }
+        else {*/
+            if (enlargeCubes) {
+                renderDevice.RenderSurface(renderCamera, largeCubes[i], viewRotation);
+            }
+            else {
+                renderDevice.RenderSurface(renderCamera, cubes[i], viewRotation);
+            }
+        //}
     }
 
-    if (renderCube) {
-        if (cubeWireframe) {
-            for (int i = 0; i < n; i++) {
-                Color4 color = Color4(
-                    std::fmod(0.25 * (i + 1), 1.0),
-                    std::fmod(0.50 * (i + 1), 1.0),
-                    std::fmod(0.75 * (i + 1), 1.0),
-                    1.0
-                );
-                renderDevice.RenderWireframe(renderCamera, cubes[i], rotation, color);
-            }
-        }
-        else {
-            for (int i = 0; i < n; i++) {
-                if (enlargeCubes) {
-                    renderDevice.RenderSurface(renderCamera, largeCubes[i], viewRotation);
-                }
-                else {
-                    renderDevice.RenderSurface(renderCamera, cubes[i], viewRotation);
-                }
-            }
-        }
+    if (wireframeOnly || fixWireframe) {
+
+        renderDevice.RenderWireframe(renderCamera, dodecahedron, rotation, Color4(0.0, 0.0, 0.0, 1.0), 3);
     }
 }

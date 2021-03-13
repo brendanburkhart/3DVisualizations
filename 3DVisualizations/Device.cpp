@@ -66,7 +66,7 @@ void Device::RenderSurface(const Camera& camera, const Mesh& mesh, const Quatern
     }
 }
 
-void Device::RenderWireframe(const Camera& camera, const Mesh& mesh, const Quaternion& rotation, const Color4& color) {
+void Device::RenderWireframe(const Camera& camera, const Mesh& mesh, const Quaternion& rotation, const Color4& color, int thickness) {
     Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3(0.0, 0.0, 1.0));
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,
@@ -82,7 +82,7 @@ void Device::RenderWireframe(const Camera& camera, const Mesh& mesh, const Quate
         auto pixelA = Project(vertexA, rotation, transformMatrix);
         auto pixelB = Project(vertexB, rotation, transformMatrix);
 
-        DrawLine(pixelA, pixelB, color);
+        DrawLine(pixelA, pixelB, color, thickness);
     }
 }
 
@@ -209,17 +209,22 @@ double delta(int x, int y) {
     return sqrt(x2 + y2);
 }
 
-void Device::DrawLine(Vector3 pointA, Vector3 pointB, Color4 color) {
+void Device::DrawLine(Vector3 pointA, Vector3 pointB, Color4 color, int width) {
     int x0 = (int)pointA.X;
     int y0 = (int)pointA.Y;
     int x1 = (int)pointB.X;
     int y1 = (int)pointB.Y;
+    int x2;
+    int y2;
+
+    int wd = (width + 1) / 2;
 
     auto dx = abs(x1 - x0);
     auto dy = abs(y1 - y0);
     auto sx = (x0 < x1) ? 1 : -1;
     auto sy = (y0 < y1) ? 1 : -1;
     auto err = dx - dy;
+    double ed = dx + dy == 0 ? 1 : delta(dx, dy);
 
     int x = x0;
     int y = y0;
@@ -227,12 +232,30 @@ void Device::DrawLine(Vector3 pointA, Vector3 pointB, Color4 color) {
     while (true) {
         double t = delta(x - x0, y - y0) / delta(dx, dy);
         double z = Interpolate(pointA.Z, pointB.Z, t);
+        //double brightness = std::min(1.0, std::max(0.0, 1.0 - (abs(err - dx + dy) / ed)));
         DrawPoint(Vector3(x, y, z), color);
 
-        if ((x == x1) && (y == y1)) { break; };
-        auto e2 = 2 * err;
-        if (e2 > -dy) { err -= dy; x += sx; }
-        if (e2 < dx) { err += dx; y += sy; }
+        double e2 = err;
+        x2 = x;
+        if (2 * e2 >= -dx) {
+            for (e2 += dy, y2 = y; e2 < ed * wd && (y1 != y2 || dx > dy); e2 += dx) {
+                //brightness = std::min(1.0, std::max(0.0, 1.0 - abs(e2) / ed));
+                y2 += sy;
+                DrawPoint(Vector3(x, y2, z), color);
+            }
+            if (x == x1) break;
+            e2 = err; err -= dy; x += sx;
+        }
+
+        if (2 * e2 <= dy) {
+            for (e2 = dx - e2; e2 < ed * wd && (x1 != x2 || dx < dy); e2 += dy) {
+                //brightness = std::min(1.0, std::max(0.0, 1.0 - abs(e2) / ed));
+                x2 += sx;
+                DrawPoint(Vector3(x2, y, z), color);
+            }
+            if (y == y1) break;
+            err += dx; y += sy;
+        }
     }
 }
 
@@ -259,10 +282,10 @@ void Device::PutPixel(int x, int y, Color4 color) {
     // on the 2D coordinates on screen
     auto index = ((x * 4) + y * (backBuffer.scanLineSize));
 
-    backBuffer[index] = (char)(color.Blue * 255);
-    backBuffer[index + 1] = (char)(color.Green * 255);
-    backBuffer[index + 2] = (char)(color.Red * 255);
-    backBuffer[index + 3] = (char)(color.Alpha * 255);
+    backBuffer[index] = (char)(color.Blue * 255) + (char)((1.0 - color.Alpha) * (double)backBuffer[index]);
+    backBuffer[index + 1] = (char)(color.Green * 255) + (char)((1.0 - color.Alpha) * (double)backBuffer[index + 1]);
+    backBuffer[index + 2] = (char)(color.Red * 255) + (char)((1.0 - color.Alpha) * (double)backBuffer[index + 2]);
+    backBuffer[index + 3] = (char)(color.Alpha * 255) + (char)((1.0 - color.Alpha) * (double)backBuffer[index + 3]);
 }
 
 int Device::getWidth() {

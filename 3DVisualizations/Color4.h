@@ -14,4 +14,8 @@ struct Color4 {
         double d = std::min(1.0, std::max(0.0, Vector3::Dot(normal, light)) + ambient);
         return Color4(unshaded.Blue * d, unshaded.Green * d, unshaded.Red * d, 1.0);
     }
+
+    Color4 Scale(double brightness) {
+        return Color4(Blue * brightness, Green * brightness, Red * brightness, Alpha * brightness);
+    }
 };

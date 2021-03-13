@@ -319,7 +319,7 @@ Mesh ShapeMeshes::EmbeddedCube(int i, bool large) {
         addEdge(cube, 5, 19);
 
         addEdge(cube, 11, 2);
-        addEdge(cube, 11, 3);
+        addEdge(cube, 11, 13);
         addEdge(cube, 11, 19);
     }
 
