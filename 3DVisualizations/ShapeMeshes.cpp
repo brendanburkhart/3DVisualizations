@@ -30,7 +30,7 @@ Mesh ShapeMeshes::Cube() {
 }
 
 // Vertices in anti-clockwise order
-void addPentagonFace(size_t index, int a, int b, int c, int d, int e, Mesh& mesh) {
+void addPentagonFace(size_t index, int a, int b, int c, int d, int e, const Color4& color, Mesh& mesh) {
     Vector3 ab = Vector3::Subtract(mesh.Vertices[b], mesh.Vertices[a]);
     Vector3 ad = Vector3::Subtract(mesh.Vertices[d], mesh.Vertices[a]);
     Vector3 normal = Vector3::Normalize(Vector3::Cross(ab, ad));
@@ -49,6 +49,10 @@ void addPentagonFace(size_t index, int a, int b, int c, int d, int e, Mesh& mesh
     auto third = Mesh::Face(a, d, e);
     third.normal = normal;
     third.position = position;
+
+    first.color = color;
+    second.color = color;
+    third.color = color;
 
     mesh.Faces.push_back(first);
     mesh.Faces.push_back(second);
@@ -128,18 +132,18 @@ Mesh ShapeMeshes::Dodecahedron() {
 
     addDodecahedronVertices(dodecahedron.Vertices);
 
-    addPentagonFace(0, 0, 12, 14, 4, 8, dodecahedron);
-    addPentagonFace(1, 6, 14, 12, 2, 10, dodecahedron);
-    addPentagonFace(2, 12, 0, 16, 17, 2, dodecahedron);
-    addPentagonFace(3, 14, 6, 19, 18, 4, dodecahedron);
-    addPentagonFace(4, 0, 8, 9, 1, 16, dodecahedron);
-    addPentagonFace(5, 18, 5, 9, 8, 4, dodecahedron);
-    addPentagonFace(6, 17, 3, 11, 10, 2, dodecahedron);
-    addPentagonFace(7, 19, 6, 10, 11, 7, dodecahedron);
-    addPentagonFace(8, 13, 3, 17, 16, 1, dodecahedron);
-    addPentagonFace(9, 15, 5, 18, 19, 7, dodecahedron);
-    addPentagonFace(10, 9, 5, 15, 13, 1, dodecahedron);
-    addPentagonFace(11, 11, 3, 13, 15, 7, dodecahedron);
+    addPentagonFace(0, 0, 12, 14, 4, 8, Color4(0.0, 0.75, 0.25, 1.0), dodecahedron);
+    addPentagonFace(1, 6, 14, 12, 2, 10, Color4(0.75, 0.0, 0.25, 1.0), dodecahedron);
+    addPentagonFace(2, 12, 0, 16, 17, 2, Color4(0.75, 0.0, 0.25, 1.0), dodecahedron);
+    addPentagonFace(3, 14, 6, 19, 18, 4, Color4(0.5, 0.75, 0.0, 1.0), dodecahedron);
+    addPentagonFace(4, 0, 8, 9, 1, 16, Color4(0.0, 0.75, 0.25, 1.0), dodecahedron);
+    addPentagonFace(5, 18, 5, 9, 8, 4, Color4(0.0, 0.25, 0.75, 1.0), dodecahedron);
+    addPentagonFace(6, 17, 3, 11, 10, 2, Color4(0.5, 0.75, 0.0, 1.0), dodecahedron);
+    addPentagonFace(7, 19, 6, 10, 11, 7, Color4(0.25, 0.0, 0.75, 1.0), dodecahedron);
+    addPentagonFace(8, 13, 3, 17, 16, 1, Color4(0.75, 0.25, 0.0, 1.0), dodecahedron);
+    addPentagonFace(9, 15, 5, 18, 19, 7, Color4(0.75, 0.25, 0.0, 1.0), dodecahedron);
+    addPentagonFace(10, 9, 5, 15, 13, 1, Color4(0.25, 0.0, 0.75, 1.0), dodecahedron);
+    addPentagonFace(11, 11, 3, 13, 15, 7, Color4(0.0, 0.25, 0.75, 1.0), dodecahedron);
 
     addEdge(dodecahedron, 0, 8);
     addEdge(dodecahedron, 0, 12);

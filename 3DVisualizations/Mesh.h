@@ -13,6 +13,8 @@ public:
         Vector3 normal;
         Vector3 position;
 
+        Color4 color;
+
         Face();
         Face(int a, int b, int c);
     };

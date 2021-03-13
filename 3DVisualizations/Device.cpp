@@ -36,7 +36,7 @@ BackBuffer Device::GetBuffer() const {
     return backBuffer;
 }
 
-void Device::RenderSurface(const Camera& camera, const Mesh& mesh, const Quaternion& rotation, const Color4& color) {
+void Device::RenderSurface(const Camera& camera, const Mesh& mesh, const Quaternion& rotation) {
     Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3(0.0, 0.0, 1.0));
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,
@@ -61,7 +61,7 @@ void Device::RenderSurface(const Camera& camera, const Mesh& mesh, const Quatern
         Vector3 light = Vector3::Normalize(Vector3::Subtract(camera.Light, position));
 
         // Rasterize face as a triangles
-        RasterizeTriangle(pixelA, pixelB, pixelC, Color4::Shade(light, normal, color, 0.25));
+        RasterizeTriangle(pixelA, pixelB, pixelC, Color4::Shade(light, normal, face.color, 0.25));
         faceIndex++;
     }
 }

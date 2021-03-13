@@ -112,7 +112,7 @@ void Visualization::Render(Device& renderDevice) {
     renderDevice.Clear(Color4(1.0, 1.0, 1.0, 1.0));
     
     if (!wireframeOnly) {
-        renderDevice.RenderSurface(renderCamera, dodecahedron, viewRotation, Color4(0.25, 0.0, 0.75, 1.0));
+        renderDevice.RenderSurface(renderCamera, dodecahedron, viewRotation);
     }
 
     Quaternion rotation = viewRotation;
