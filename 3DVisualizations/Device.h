@@ -7,6 +7,7 @@
 #include "Color4.h"
 
 #include <vector>
+#include "Quaternion.h"
 
 class Device {
 private:
@@ -17,7 +18,7 @@ private:
 
     // Project takes coordinates and transforms them
     // using the transformation matrix
-    Vector3 Project(Vector3 coord, Matrix transMat);
+    Vector3 Project(const Vector3& coord, const Quaternion& rotation, const Matrix& transMat) const;
 
     void RasterizeTriangle(Vector3 p1, Vector3 p2, Vector3 p3, Color4 color);
 
@@ -50,8 +51,8 @@ public:
     // into the front buffer. 
     BackBuffer GetBuffer() const;
 
-    void RenderSurface(const Camera& camera, const Mesh& mesh, const Matrix& tranform);
-    void RenderWireframe(const Camera& camera, const Mesh& mesh, const Matrix& transform);
+    void RenderSurface(const Camera& camera, const Mesh& mesh, const Quaternion& rotation, const Color4& color);
+    void RenderWireframe(const Camera& camera, const Mesh& mesh, const Quaternion& rotation, const Color4& color);
 
     int getWidth();
     int getHeight();

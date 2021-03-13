@@ -8,7 +8,6 @@ Mesh::Face::Face() : A(NULL), B(NULL), C(NULL) { }
 Mesh::Face::Face(int a, int b, int c) : A(a), B(b), C(c) { }
 
 Mesh::Mesh()
-    : color(Color4(1.0, 1.0, 1.0, 1.0)),
-      Vertices(std::vector<Vector3>()),
+    : Vertices(std::vector<Vector3>()),
       Faces(std::vector<Mesh::Face>()),
       Edges(std::vector<std::pair<size_t, size_t>>()) {}

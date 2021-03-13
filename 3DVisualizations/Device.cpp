@@ -36,13 +36,13 @@ BackBuffer Device::GetBuffer() const {
     return backBuffer;
 }
 
-void Device::RenderSurface(const Camera& camera, const Mesh& mesh, const Matrix& transform) {
+void Device::RenderSurface(const Camera& camera, const Mesh& mesh, const Quaternion& rotation, const Color4& color) {
     Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3(0.0, 0.0, 1.0));
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,
         0.01f, 1.0f);
 
-    Matrix transformMatrix = transform * viewMatrix * projectionMatrix;
+    Matrix transformMatrix = viewMatrix * projectionMatrix;
 
     auto faceIndex = 0;
     for (const auto& face : mesh.Faces) {
@@ -52,43 +52,46 @@ void Device::RenderSurface(const Camera& camera, const Mesh& mesh, const Matrix&
         const auto& vertexC = mesh.Vertices[face.C];
 
         // Transform to get the pixel
-        auto pixelA = Project(vertexA, transformMatrix);
-        auto pixelB = Project(vertexB, transformMatrix);
-        auto pixelC = Project(vertexC, transformMatrix);
+        auto pixelA = Project(vertexA, rotation, transformMatrix);
+        auto pixelB = Project(vertexB, rotation, transformMatrix);
+        auto pixelC = Project(vertexC, rotation, transformMatrix);
 
-        Vector3 normal = Vector3::Normalize(Vector3::TransformCoordinate(face.normal, transform));
-        Vector3 position = Vector3::TransformCoordinate(face.position, transform);
+        Vector3 normal = rotation.Rotate(face.normal);
+        Vector3 position = rotation.Rotate(face.position);
         Vector3 light = Vector3::Normalize(Vector3::Subtract(camera.Light, position));
 
         // Rasterize face as a triangles
-        RasterizeTriangle(pixelA, pixelB, pixelC, Color4::Shade(light, normal, mesh.color, 0.25));
+        RasterizeTriangle(pixelA, pixelB, pixelC, Color4::Shade(light, normal, color, 0.25));
         faceIndex++;
     }
 }
 
-void Device::RenderWireframe(const Camera& camera, const Mesh& mesh, const Matrix& transform) {
+void Device::RenderWireframe(const Camera& camera, const Mesh& mesh, const Quaternion& rotation, const Color4& color) {
     Matrix viewMatrix = Matrix::LookAtLH(camera.Position, camera.Target, Vector3(0.0, 0.0, 1.0));
     Matrix projectionMatrix = Matrix::PerspectiveFovLH(0.78f,
         (double)deviceWidth / deviceHeight,
         0.01f, 1.0f);
 
-    Matrix transformMatrix = transform * viewMatrix * projectionMatrix;
+    Matrix transformMatrix = viewMatrix * projectionMatrix;
 
     for (const auto& edge : mesh.Edges) {
         const auto& vertexA = mesh.Vertices[edge.first];
         const auto& vertexB = mesh.Vertices[edge.second];
 
         // Transform to get the pixel
-        auto pixelA = Project(vertexA, transformMatrix);
-        auto pixelB = Project(vertexB, transformMatrix);
+        auto pixelA = Project(vertexA, rotation, transformMatrix);
+        auto pixelB = Project(vertexB, rotation, transformMatrix);
 
-        DrawLine(pixelA, pixelB, mesh.color);
+        DrawLine(pixelA, pixelB, color);
     }
 }
 
-Vector3 Device::Project(Vector3 coord, Matrix transMat) {
+Vector3 Device::Project(const Vector3& coord, const Quaternion& rotation, const Matrix& transMat) const {
+    // Rotate
+    Vector3 point = rotation.Rotate(coord);
+
     // Transforming the coordinates
-    Vector3 point = Vector3::TransformCoordinate(coord, transMat);
+    point = Vector3::TransformCoordinate(point, transMat);
 
     // The transformed coordinates will be based on coordinate system
     // starting on the center of the screen. But drawing on screen normally starts

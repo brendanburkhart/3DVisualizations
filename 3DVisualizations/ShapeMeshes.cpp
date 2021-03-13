@@ -4,8 +4,6 @@
 Mesh ShapeMeshes::Cube() {
     Mesh cube;
 
-    cube.color = Color4(0.25, 0.0, 0.5, 1.0);
-
     cube.Vertices.push_back(Vector3(-3, 3, 3));
     cube.Vertices.push_back(Vector3(3, 3, 3));
     cube.Vertices.push_back(Vector3(-3, -3, 3));
@@ -128,8 +126,6 @@ void addEdge(Mesh& mesh, size_t a, size_t b) {
 Mesh ShapeMeshes::Dodecahedron() {
     Mesh dodecahedron;
 
-    dodecahedron.color = Color4(0.25, 0.0, 0.5, 1.0);
-
     addDodecahedronVertices(dodecahedron.Vertices);
 
     addPentagonFace(0, 0, 12, 14, 4, 8, dodecahedron);
@@ -189,8 +185,6 @@ Mesh ShapeMeshes::Dodecahedron() {
 
 Mesh ShapeMeshes::EmbeddedCube() {
     Mesh cube;
-
-    cube.color = Color4(0.25, 0.0, 0.5, 1.0);
 
     addDodecahedronVertices(cube.Vertices);
 

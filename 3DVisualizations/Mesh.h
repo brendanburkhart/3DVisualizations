@@ -21,7 +21,5 @@ public:
     std::vector<Mesh::Face> Faces;
     std::vector<std::pair<size_t, size_t>> Edges;
 
-    Color4 color;
-
     Mesh();
 };

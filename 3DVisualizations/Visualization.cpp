@@ -5,11 +5,17 @@
 
 #include "ShapeMeshes.h"
 
-Visualization::Visualization() {
+constexpr double PI = 3.14159265358979323846;
+
+Visualization::Visualization()
+    : slerp(nullptr),
+      viewRotation(Quaternion::EulerAngle(0.0, Vector3(1.0, 0.0, 0.0)))
+{
     dodecahedron = ShapeMeshes::Dodecahedron();
     cube = ShapeMeshes::EmbeddedCube();
 
     wireframeOnly = false;
+    fixWireframe = false;
 
     renderCamera = Camera();
     renderCamera.Position = Vector3(25, 0, 0);
@@ -20,13 +26,42 @@ Visualization::Visualization() {
 }
 
 void Visualization::resetView() {
-    viewRotation = Vector3(0.0, 0.0, 0.0);
+    slerp = nullptr;
+    viewRotation = Quaternion::EulerAngle(0.0, Vector3(1.0, 0.0, 0.0));
 }
 
 void Visualization::OnKeyDown(WPARAM wParam, LPARAM lParam) {
+    Quaternion target = Quaternion::EulerAngle(0.0, Vector3(1.0, 0.0, 0.0));
+    Quaternion delta = Quaternion::EulerAngle(0.0, Vector3(1.0, 0.0, 0.0));
+
+    constexpr double dihedral_angle = 2.03444394; // 2*arctan(phi)
+    constexpr double align_angle = -1.2059325;
+
     switch (wParam) {
     case 'M':
         wireframeOnly = !wireframeOnly;
+        break;
+    case 'F':
+        fixWireframe = !fixWireframe;
+        break;
+    case 'S':
+        // rotate by (PI - dihedral angle) around y-axis
+        if (slerp) break;
+        target = Quaternion::EulerAngle(
+            align_angle,
+            Vector3(0.0, 1.0, 0.0)
+        );
+        slerp = std::make_unique<Slerp>(viewRotation, target, 1.0);
+        break;
+    case '1':
+        // rotate by 2pi/3 around x-axis
+        if (slerp) break;
+        delta = Quaternion::EulerAngle(
+            2.0*PI/3.0,
+            Vector3(1.0, 0.0, 0.0)
+        );
+        target = delta.Multiply(viewRotation);
+        slerp = std::make_unique<Slerp>(viewRotation, target, 1.0);
         break;
     case 'R':
         resetView();
@@ -35,48 +70,58 @@ void Visualization::OnKeyDown(WPARAM wParam, LPARAM lParam) {
 }
 
 void Visualization::Update(double elapsed_seconds) {
-    double dx = 0.0;
-    double dy = 0.0;
-    double dz = 0.0;
+    double ax = 0.0;
+    double ay = 0.0;
+    double az = 0.0;
+    double theta = 0.0;
 
     if (GetKeyState(VK_LEFT) & 0x8000) {
-        dz -= 0.01;
+        az = 1.0;
+        theta = 0.05;
     }
 
     if (GetKeyState(VK_RIGHT) & 0x8000) {
-        dz += 0.01;
+        az = -1.0;
+        theta = 0.05;
     }
 
     if (GetKeyState(VK_UP) & 0x8000) {
-        dy -= 0.01;
+        ay = -1.0;
+        theta = 0.05;
     }
 
     if (GetKeyState(VK_DOWN) & 0x8000) {
-        dy += 0.01;
+        ay = 1.0;
+        theta = 0.05;
     }
 
-    viewRotation = Vector3(
-        std::fmod(viewRotation.X + dx, 1.0),
-        std::fmod(viewRotation.Y + dy, 1.0),
-        std::fmod(viewRotation.Z + dz, 1.0)
-    );
+    if (slerp) {
+        bool done = slerp->Update(elapsed_seconds);
+        viewRotation = slerp->Current();
+        if (done) {
+            slerp = nullptr;
+        }
+    }
+    else {
+        Quaternion delta = Quaternion::EulerAngle(theta, Vector3(ax, ay, az));
+        viewRotation = delta.Multiply(viewRotation);
+    }
 }
 
 void Visualization::Render(Device& renderDevice) {
     renderDevice.Clear(Color4(1.0, 1.0, 1.0, 1.0));
-
-    constexpr double PI = 3.14159265358979323846;
-
-    Matrix rotationMatrix = Matrix::RotationYawPitchRoll(
-        2.0 * PI *viewRotation.Y,
-        2.0 * PI * viewRotation.X,
-        2.0 * PI * viewRotation.Z
-    );
-
-    if (wireframeOnly) {
-        renderDevice.RenderWireframe(renderCamera, dodecahedron, rotationMatrix);
+    
+    if (!wireframeOnly) {
+        renderDevice.RenderSurface(renderCamera, dodecahedron, viewRotation, Color4(0.25, 0.0, 0.75, 1.0));
     }
-    else {
-        renderDevice.RenderSurface(renderCamera, dodecahedron, rotationMatrix);
+
+    Quaternion rotation = viewRotation;
+    if (fixWireframe) {
+        rotation = Quaternion::EulerAngle(0.0, Vector3(1.0, 0.0, 0.0));
+    }
+
+    if (wireframeOnly || fixWireframe) {
+        
+        renderDevice.RenderWireframe(renderCamera, dodecahedron, rotation, Color4(0.0, 0.0, 0.0, 1.0));
     }
 }
