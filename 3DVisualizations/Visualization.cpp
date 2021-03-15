@@ -10,7 +10,7 @@ constexpr double PI = 3.14159265358979323846;
 constexpr double dihedral_angle = 2.03444394; // 2*arctan(phi)
 constexpr double align_angle1 = -1.2059325; // -arctan(phi^2)
 constexpr double align_angle2 = -0.364863828; // -arctan(1/phi^2)
-constexpr double align_angle3 = -0.364863828; // -arctan(phi^2)
+constexpr double align_angle3 = 0.556349562; // arcsin(1/sqrt(5-sqrt(2)))
 
 Visualization::Visualization()
     : slerp(nullptr),
@@ -40,8 +40,8 @@ Visualization::Visualization()
 void Visualization::resetView() {
     slerp = nullptr;
     viewRotation = Quaternion::EulerAngle(
-        align_angle1,
-        Vector3(0.0, 1.0, 0.0)
+        0,
+        Vector3(1.0, 0.0, 0.0)
     );
 }
 
@@ -52,9 +52,6 @@ void Visualization::OnKeyDown(WPARAM wParam, LPARAM lParam) {
     switch (wParam) {
     case 'M':
         wireframeOnly = !wireframeOnly;
-        break;
-    case 'F':
-        fixWireframe = !fixWireframe;
         break;
     case 'L':
         enlargeCubes = !enlargeCubes;
@@ -77,17 +74,41 @@ void Visualization::OnKeyDown(WPARAM wParam, LPARAM lParam) {
     case 'A':
         if (slerp) break;
         target = Quaternion::EulerAngle(
-            align_angle2,
+            align_angle1,
             Vector3(0.0, 1.0, 0.0)
-        ).Multiply(Quaternion::EulerAngle(-0.5 * PI, Vector3(0.0, 0.0, 1.0)));
+        );
         slerp = std::make_unique<Slerp>(viewRotation, target, 1.0);
         break;
     case 'B':
         if (slerp) break;
         target = Quaternion::EulerAngle(
+            PI,
+            Vector3(1.0, 0.0, 0.0)
+        ).Multiply(Quaternion::EulerAngle(
+            align_angle2,
+            Vector3(0.0, 1.0, 0.0)
+        )).Multiply(Quaternion::EulerAngle(-0.5 * PI, Vector3(0.0, 0.0, 1.0)));
+        slerp = std::make_unique<Slerp>(viewRotation, target, 1.0);
+        break;
+    case 'C':
+        if (slerp) break;
+        target = Quaternion::EulerAngle(
             -align_angle2,
             Vector3(0.0, 1.0, 0.0)
         ).Multiply(Quaternion::EulerAngle(-0.5 * PI, Vector3(0.0, 0.0, 1.0)));
+        slerp = std::make_unique<Slerp>(viewRotation, target, 1.0);
+        break;
+    case 'D':
+        if (slerp) break;
+        target = Quaternion::EulerAngle(-align_angle3, Vector3(0.0, 1.0, 0.0))
+            .Multiply(Quaternion::EulerAngle(PI / 10.0, Vector3(1.0, 0.0, 0.0)))
+            .Multiply(Quaternion::EulerAngle(0.5*PI - align_angle3, Vector3(0.0, 0.0, 1.0)));
+        slerp = std::make_unique<Slerp>(viewRotation, target, 1.0);
+        break;
+    case 'E':
+        if (slerp) break;
+        target = Quaternion::EulerAngle(PI / 10.0, Vector3(1.0, 0.0, 0.0))
+            .Multiply(Quaternion::EulerAngle(0.5 * PI - align_angle3, Vector3(0.0, 0.0, 1.0)));
         slerp = std::make_unique<Slerp>(viewRotation, target, 1.0);
         break;
     case 'S':
@@ -99,6 +120,26 @@ void Visualization::OnKeyDown(WPARAM wParam, LPARAM lParam) {
         );
         target = delta.Multiply(viewRotation);
         slerp = std::make_unique<Slerp>(viewRotation, target, 1.0);
+        break;
+    case 'F':
+        // rotate by pi around x-axis
+        if (slerp) break;
+        delta = Quaternion::EulerAngle(
+            PI,
+            Vector3(1.0, 0.0, 0.0)
+        );
+        target = delta.Multiply(viewRotation);
+        slerp = std::make_unique<Slerp>(viewRotation, target, 1.0);
+        break;
+    case 'P':
+        // rotate by 2*pi/5 around x-axis
+        if (slerp) break;
+        delta = Quaternion::EulerAngle(
+            0.4 * PI,
+            Vector3(1.0, 0.0, 0.0)
+        );
+        target = delta.Multiply(viewRotation);
+        slerp = std::make_unique<Slerp>(viewRotation, target, 0.35);
         break;
     case 'R':
         resetView();
