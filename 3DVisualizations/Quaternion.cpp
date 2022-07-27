@@ -15,6 +15,19 @@ Quaternion Quaternion::EulerAngle(double theta, Vector3 axis) {
     return Quaternion(r, axis.X * s, axis.Y * s, axis.Z * s);
 }
 
+Quaternion Quaternion::Scale(double scale) const {
+    return Quaternion(
+        scale * r,
+        scale * a,
+        scale * b,
+        scale * c
+    );
+}
+
+double Quaternion::Dot(const Quaternion& q) const {
+    return r * q.r + a * q.a + b * q.b + c * q.c;
+}
+
 Quaternion Quaternion::Multiply(const Quaternion& q) const {
     return Quaternion(
         r * q.r - a * q.a - b * q.b - c * q.c,

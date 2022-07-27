@@ -11,6 +11,8 @@ private:
 
 public:
     static Quaternion EulerAngle(double theta, Vector3 axis);
+    Quaternion Scale(double scale) const;
+    double Dot(const Quaternion& q) const;
     Quaternion Multiply(const Quaternion& q) const;
     Quaternion Inverse() const;
 

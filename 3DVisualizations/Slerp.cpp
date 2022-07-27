@@ -9,7 +9,12 @@ constexpr double epsilon = 0.00001;
 Slerp::Slerp(Quaternion start, Quaternion end, double duration)
     : start(start), end(end), duration(duration), progress(0.0) {
 
-    cosHalfTheta = start.r * end.r + start.a * end.a + start.b * end.b + start.c * end.c;
+    cosHalfTheta = start.Dot(end);
+    if (cosHalfTheta < 0.0) {
+        this->start = start.Scale(-1.0);
+        cosHalfTheta = this->start.Dot(end);
+    }
+
     cosHalfTheta = std::max(0.0, std::min(1.0, cosHalfTheta));
 
     halfTheta = acos(cosHalfTheta);
@@ -34,16 +39,16 @@ Quaternion Slerp::Current() {
     }
 
     // Theta = 180, so rotation is through 360 degrees
+    double t = progress / duration;
     if (abs(sinHalfTheta) < epsilon) {
         return Quaternion(
-            0.5 * (start.r + end.r),
-            0.5 * (start.a + end.a),
-            0.5 * (start.b + end.b),
-            0.5 * (start.c + end.c)
+            (1 - t) * start.r + t * end.r,
+            (1 - t )* start.a + t * end.a,
+            (1 - t) * start.b + t * end.b,
+            (1 - t) * start.c + t * end.c
         );
     }
 
-    double t = progress / duration;
     double ratioA = sin((1 - t) * halfTheta) / sinHalfTheta;
     double ratioB = sin(t * halfTheta) / sinHalfTheta;
 
